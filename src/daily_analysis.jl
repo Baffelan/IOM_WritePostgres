@@ -49,9 +49,6 @@ function daily_analysis(userID)
 end
 
 
-daily_analysis("001")
-
-
 
 
 
