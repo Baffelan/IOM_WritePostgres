@@ -2,13 +2,13 @@ using JSON
 using DataFrames
 using Dates
 
-include("importedFunctions/WordNetwork/WordNetwork.jl")
-include("importedFunctions/WordNetwork/articles_to_word_network.jl")
-include("importedFunctions/postgreSQL/ReadWritePostgres.jl")
-include("importedFunctions/Analysis/Anomaly/anomalyDetection.jl")
+# include("importedFunctions/WordNetwork/WordNetwork.jl")
+# include("importedFunctions/WordNetwork/articles_to_word_network.jl")
+# include("importedFunctions/postgreSQL/ReadWritePostgres.jl")
+# include("importedFunctions/Analysis/Anomaly/anomalyDetection.jl")
 include("importedFunctions/kw_data_frame.jl")
-include("importedFunctions/Analysis/word_count.jl")
-include("importedFunctions/Analysis/CreateProcessedDf.jl")
+# include("importedFunctions/Analysis/word_count.jl")
+# include("importedFunctions/Analysis/CreateProcessedDf.jl")
 
 
 """
