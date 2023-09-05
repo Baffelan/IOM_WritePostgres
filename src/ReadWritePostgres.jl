@@ -95,3 +95,18 @@ function get_connection(;path="connection.json")
     conn = string([string(p, "=", k, " ") for (p,k) in pairs(conn_d)]...)
 end
 
+
+function user_from_id(userID)
+    parse_kw_array(str) = rsplit(replace(replace(str, "{"=>""), "}"=>""),",")
+
+    user_df = query_postgres("users", condition=string("WHERE ID='",userID,"'"), sorted=false)
+    
+    user = Dict{Symbol, Any}(pairs(user_df[1,:]))
+
+    user[:keywords] = parse_kw_array(user[:keywords])
+
+    return user
+end
+
+
+
