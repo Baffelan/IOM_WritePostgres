@@ -103,10 +103,9 @@ function user_from_id(userID)
     
     user = Dict{Symbol, Any}(pairs(user_df[1,:]))
 
-    user[:keywords] = parse_kw_array(user[:keywords])
+    user[:keywords] = replace.(parse_kw_array(user[:keywords]), "\""=>"")
 
     return user
 end 
-
 
 
