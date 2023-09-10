@@ -19,7 +19,7 @@ function get_ref_matrix(article::DataFrame, tokens::Base.AbstractVecOrTuple, emb
     ftext = format_text(all_text)
     
     wn = WordNetwork(ftext, emb)
-    subembedding_from_tokens(wn; tokens=tokens, which_mat=which_mat)
+    subembedding_from_tokens(wn, tokens, which_mat=which_mat)
 end
 
 

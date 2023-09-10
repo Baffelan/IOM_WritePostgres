@@ -63,14 +63,13 @@ word_network_self_dist(mat::Matrix; dist_metric=Euclidean()) = pairwise(dist_met
 
 function get_burnin_dists_day(wn_s::AbstractArray{WordNetwork}, burnin::AbstractRange)
     # burnin_dict = NamedTuple{String, AbstractArray}(x̄=>0.0, σ=>0.0)
-    distances = []
+    distances = Vector{Float64}()
     for i in burnin[2:end]
         i_mats = create_interacting_embedding(wn_s[i],wn_s[i-1])
         self_dists = word_network_self_dist.(i_mats[1:2])
         dists = mean(abs.(self_dists[1].-self_dists[2]))
         push!(distances, dists)
     end
-
     return mean(distances), std(distances)
 
 end

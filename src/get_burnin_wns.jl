@@ -1,3 +1,5 @@
+using JSON
+using Dates
 include("WordNetwork/WordNetwork.jl")
 
 function make_to_wn(proc_df_row)
@@ -10,12 +12,20 @@ end
 make_wns(proc_df) = make_to_wn.(eachrow(proc_df))
 
 
-function get_burnin_wns(user)
-    all_kws = Tuple(vcat(user[:keywords]..., string(user[:id],"_aggregated")))
+function get_burnin_wns(userID, burnin::Tuple{Date, Date})
+    # all_kws = Tuple(vcat(user[:keywords]..., string(user[:id],"_aggregated")))
 
-    # all_kws = Tuple(vcat(user[:keywords]..., string("aggregated"))),
-    df = query_postgres("processedarticles", condition=string(replace(string("WHERE keyword IN ",all_kws),"\""=>"'"), "ORDER BY date DESC LIMIT $(length(all_kws)*100)"),test=false)
+    # # all_kws = Tuple(vcat(user[:keywords]..., string("aggregated"))),
+    df = query_postgres("processedarticles", "back", condition = string("WHERE user_ID='",userID,"'",
+                                                                        "AND date<='",burnin[2],"' ",
+                                                                        "AND DATE >= '",burnin[1],"'"))
 
+    if nrow(df)==0
+        println("A baseline has not been processed for this user.")
+        println("Please onboard them with the function: [onboard_user]")        
+    end
+
+    all_kws = unique(df.keyword)
     kw_dfs = [df[df.keyword.==w,:] for w in all_kws]
     
 

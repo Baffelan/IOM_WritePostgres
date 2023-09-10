@@ -10,12 +10,20 @@ condition is an optional argument that is joined at the end of the query and wil
 
 test is a bool where if true, the query string is returned rather than executing the query.
 """
-function query_postgres(table::String; condition::String="", test::Bool=false, sorted::Bool=true)
+function query_postgres(table::String, which_db::String; condition::String="", test::Bool=false, sorted::Bool=true)
     q = "SELECT * FROM $(table) $(condition)"
+
+    c = ""
+    if which_db=="forward"
+        c = get_forward_connection()
+    elseif which_db=="back"
+        c = get_back_connection()
+    end
+
     if test
         return q
     else
-        conn = LibPQ.Connection(get_connection())
+        conn = LibPQ.Connection(c)
         result = execute(conn, q)
         if sorted
             arts = sort(DataFrame(result),:date)
@@ -39,13 +47,14 @@ parse_array(A::Nothing) = []
 Loads data into the table with the schema from createNewsAPITable.py
 """
 function load_processed_data(net_df)
-    conn = LibPQ.Connection(get_connection())
+    conn = LibPQ.Connection(get_back_connection())
     execute(conn, "BEGIN;")
     
     LibPQ.load!(
         (
             date=net_df.date, 
             keyword=net_df.keyword,
+            user_ID=net_df.user_ID,
             day_text=net_df.day_text, 
             word_cloud=JSON.json.(net_df.word_count),
             sentiment=net_df.sentiment,
@@ -57,7 +66,7 @@ function load_processed_data(net_df)
             anomalous_day=net_df.anomalous_day
         ),
         conn,
-        "INSERT INTO ProcessedArticles (date, keyword, day_text, word_cloud, sentiment, word_changes, articles, embedding, token_idx, aligning_matrix, anomalous_day) VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11);"
+        "INSERT INTO ProcessedArticles (date, keyword, user_ID, day_text, word_cloud, sentiment, word_changes, articles, embedding, token_idx, aligning_matrix, anomalous_day) VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12);"
     );
 
     execute(conn, "COMMIT;")
@@ -90,16 +99,22 @@ end
 """
 creates a LibPQ connection String
 """
-function get_connection(;path="connection.json")
-    conn_d = JSON.parsefile(path)
-    conn = string([string(p, "=", k, " ") for (p,k) in pairs(conn_d)]...)
+function get_back_connection()
+    conn = "dbname=$(ENV["IOMBCKDB"]) user=$(ENV["IOMBCKUSER"]) password=$(ENV["IOMBCKPASSWORD"]) hostaddr=$(ENV["IOMBCKHOST"])"
+end
+
+"""
+creates a LibPQ connection String
+"""
+function get_forward_connection()
+    conn = "dbname=$(ENV["IOMFRNTDB"]) user=$(ENV["IOMFRNTUSER"]) password=$(ENV["IOMFRNTPASSWORD"]) hostaddr=$(ENV["IOMFRNTHOST"])"
 end
 
 
 function user_from_id(userID)
     parse_kw_array(str) = rsplit(replace(replace(str, "{"=>""), "}"=>""),",")
 
-    user_df = query_postgres("users", condition=string("WHERE ID='",userID,"'"), sorted=false)
+    user_df = query_postgres("users", "forward", condition=string("WHERE ID='",userID,"'"), sorted=false)
     
     user = Dict{Symbol, Any}(pairs(user_df[1,:]))
 

@@ -50,7 +50,7 @@ fill_blank_dates!(df, dates) = df.date=dates
 """
 Function to create the processed dataframe
 """
-function create_processed_df(dfs_trace::Vector{DataFrame}, kw::String, alignment_tokens::Base.AbstractVecOrTuple{String}, refmatrix::Union{Nothing, AbstractArray}, emb_dim::Int, burnin::UnitRange, bwns::Vector{WordNetwork})
+function create_processed_df(dfs_trace::Vector{DataFrame}, kw::AbstractString, alignment_tokens::Base.AbstractVecOrTuple, refmatrix::Union{Nothing, AbstractArray}, emb_dim::Int, burnin::UnitRange, bwns::Vector)
 
     word_nets = articles_to_word_network.(dfs_trace, [alignment_tokens], emb_dim, [refmatrix]);
     all_nets = vcat(bwns..., word_nets...)

@@ -163,7 +163,7 @@ end
     (or as close as possible)
 """
 
-function aligning_matrix!(wn::WordNetwork; A::AbstractArray=REFMATRIX, tokens::Tuple=ALIGNMENT)
+function aligning_matrix!(wn::WordNetwork; A::AbstractArray=REFMATRIX, tokens::Base.AbstractVecOrTuple=ALIGNMENT)
     subemb = soft_subembedding_from_tokens(wn, tokens=tokens)
     kept_tokens = [in(t, keys(wn.token_idx)) for t in tokens]
     if sum(kept_tokens)<(1+size(A)[2])

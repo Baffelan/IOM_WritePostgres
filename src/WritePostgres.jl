@@ -1,10 +1,10 @@
 module WritePostgres
 
-    include("daily_analysis.jl")
+    include("process_todays_articles.jl")
     include("ReadWritePostgres.jl")
 
     # Main Functions 
-    export daily_analysis
+    export process_todays_articles
     export onboard_user
     export collect_data
 
