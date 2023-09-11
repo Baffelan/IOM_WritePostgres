@@ -51,4 +51,3 @@ function onboard_user(userID)
     load_processed_data(big_df)
 end
 
-onboard_user("TEST")
