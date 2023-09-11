@@ -1,0 +1,6 @@
+{
+    "ALIGNMENT_TOKENS": ["the", "to", "is", "that", "have", "it", "on"],
+    "DAY_RANGE": ["2021-01-03", "2021-01-04"],
+    "BURNIN_RANGE":["2021-01-01", "2021-01-02"],
+    "EMBEDDING_DIM":4
+}
