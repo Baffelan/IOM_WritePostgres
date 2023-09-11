@@ -12,5 +12,6 @@ module WritePostgres
     # Additional useful functions that are imported by MakeWebJSON
     export user_from_id
     export query_postgres
-    export get_connection
+    export get_back_connection
+    export get_forward_connection
 end
