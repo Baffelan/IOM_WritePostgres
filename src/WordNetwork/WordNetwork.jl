@@ -1,5 +1,3 @@
-using Graphs
-using MetaGraphs
 using DotProductGraphs
 using Printf
 using DataFrames
