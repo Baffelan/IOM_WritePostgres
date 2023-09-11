@@ -75,19 +75,18 @@ end
 
 
 function add_new_user(user_dict)
-    conn = LibPQ.Connection(get_connection())
+    conn = LibPQ.Connection(get_forward_connection())
     execute(conn, "BEGIN;")
     
     LibPQ.load!(
         (
-            ID=[user_dict["ID"]], 
-            name=[user_dict["name"]],
+            userID=[user_dict["userID"]],
+            collectionID=[user_dict["collectionID"]],
             information=[user_dict["information"]], 
-            keywords=[parse_array(user_dict["keywords"])],
-            location=[user_dict["location"]]
+            keywords=[user_dict["keywords"]],
         ),
         conn,
-        "INSERT INTO Users (ID, name, information, keywords, location) VALUES (\$1, \$2, \$3, \$4, \$5);"
+        "INSERT INTO api.readers (userID, collectionID, information, keywords) VALUES (\$1, \$2, \$3, \$4);"
     );
 
     execute(conn, "COMMIT;")
@@ -100,27 +99,53 @@ end
 creates a LibPQ connection String
 """
 function get_back_connection()
-    conn = "dbname=$(ENV["IOMBCKDB"]) user=$(ENV["IOMBCKUSER"]) password=$(ENV["IOMBCKPASSWORD"]) hostaddr=$(ENV["IOMBCKHOST"])"
+    conn = "$(ENV["IOMBCKDB"]) user=$(ENV["IOMBCKUSER"]) password=$(ENV["IOMBCKPASSWORD"]) hostaddr=$(ENV["IOMBCKHOST"])"
 end
-
 """
 creates a LibPQ connection String
 """
 function get_forward_connection()
-    conn = "dbname=$(ENV["IOMFRNTDB"]) user=$(ENV["IOMFRNTUSER"]) password=$(ENV["IOMFRNTPASSWORD"]) hostaddr=$(ENV["IOMFRNTHOST"])"
+    conn = "postgres://$(ENV["IOMFRNTUSER"]):$(ENV["IOMFRNTPASSWORD"])@$(ENV["IOMFRNTHOST"]):$(ENV["IOMFRNTPORT"])/$(ENV["IOMFRNTDB"])"
 end
 
 
 function user_from_id(userID)
     parse_kw_array(str) = rsplit(replace(replace(str, "{"=>""), "}"=>""),",")
 
-    user_df = query_postgres("users", "forward", condition=string("WHERE ID='",userID,"'"), sorted=false)
+    user_df = query_postgres("api.readers", "forward", condition=string("WHERE userID='",userID,"'"), sorted=false)
     
     user = Dict{Symbol, Any}(pairs(user_df[1,:]))
-
-    user[:keywords] = replace.(parse_kw_array(user[:keywords]), "\""=>"")
+    println(user[:keywords])
+    user[:keywords] = JSON.parse(user[:keywords])
 
     return user
 end 
 
 
+# user_info = JSON.json(Dict("name"=>"John Smith", "details"=>"useful customer info"))
+# user_keywords = JSON.json(Dict("keywords"=>["facebook", "twitter", "meta", "metaverse", "musk", "zuckerberg", "social media", "messenger", "tiktok", "misinformation", "conspiracy"], "location"=>"USA", "language"=>"eng"))
+# user = Dict("userID"=>999, "collectionID"=>1, "information"=>user_info, "keywords"=>user_keywords)
+
+# add_new_user(user)
+
+# query_postgres("api.readers", "forward", sorted=false).keywords[1]
+# query_postgres("api.readers", "forward", sorted=false).keywords[]
+
+
+# q = "DELETE FROM api.readers WHERE userid = 999";
+
+
+# c = get_forward_connection()
+
+
+# conn = LibPQ.Connection(c)
+# result = execute(conn, q)
+
+# arts=DataFrame(result)
+
+# close(conn);
+
+# for r in eachrow(arts)
+#     println(r)
+# end
+# unique(arts.column_name)
