@@ -61,3 +61,4 @@ function process_todays_articles(userID)
     return big_df[big_df.date .== DAY_RANGE[2],:]
 end
 
+query_postgres("raw", "back")

@@ -1,6 +1,6 @@
 {
     "ALIGNMENT_TOKENS": ["the", "to", "is", "that", "have", "it", "on"],
-    "DAY_RANGE": ["2021-01-03", "2021-01-04"],
-    "BURNIN_RANGE":["2021-01-01", "2021-01-02"],
+    "DAY_RANGE": ["2023-09-08", "2023-09-09"],
+    "BURNIN_RANGE":["2023-05-03", "2023-09-01"],
     "EMBEDDING_DIM":4
 }

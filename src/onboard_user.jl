@@ -1,4 +1,10 @@
 include("get_burnin_wns.jl")
+include("ReadWritePostgres.jl")
+include("importedFunctions/kw_data_frame.jl")
+include("WordNetwork/WordNetwork.jl")
+include("WordNetwork/articles_to_word_network.jl")
+include("importedFunctions/CreateProcessedDf.jl")
+include("anomalyDetection.jl")
 """
 gets the user's information from the forward facing db.
 Collects a large amount of information in the burnin period and processes is to the back facing db.
@@ -15,9 +21,9 @@ function onboard_user(userID)
     user_agg = string(userID,"_aggregated")
 
     df = query_postgres("raw", "back", condition=string("WHERE lang='eng' ", 
-                                                        "AND user_ID='",userID,"' ",
+                                                        "AND user_ID=",userID," ",
                                                         "AND date<='",BURNIN_RANGE[2],"' ",
-                                                        "AND DATE >= '",BURNIN_RANGE[1],"'"))
+                                                        "AND date >= '",BURNIN_RANGE[1],"'"))
 
     #########
     split_on_day(df) = [df[df[!,:date].==d,:] for d in unique(df[!,:date])]
@@ -51,3 +57,9 @@ function onboard_user(userID)
     load_processed_data(big_df)
 end
 
+onboard_user(999)
+
+query_postgres("raw", "back", condition=string("WHERE lang='eng' ", 
+                                                        "AND user_ID=",999," ",
+                                                        "AND date<'",Date(BURNIN_RANGE[2]),"' ",
+                                                        "AND date >= '",BURNIN_RANGE[1],"'"))

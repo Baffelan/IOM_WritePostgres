@@ -88,7 +88,6 @@ end
 
 function WordNetwork(text::String, emb_d::Int)
     text_graph, token_idx = coocurrence_matrix(text)
-    println(length(text))
     embedding=NamedTuple()
     try
         embedding = DotProductGraphs.svd_embedding(text_graph, min(size(text_graph)[1],emb_d))

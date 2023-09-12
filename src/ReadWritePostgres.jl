@@ -99,7 +99,7 @@ end
 creates a LibPQ connection String
 """
 function get_back_connection()
-    conn = "$(ENV["IOMBCKDB"]) user=$(ENV["IOMBCKUSER"]) password=$(ENV["IOMBCKPASSWORD"]) hostaddr=$(ENV["IOMBCKHOST"])"
+    conn = "postgres://$(ENV["IOMBCKUSER"]):$(ENV["IOMBCKPASSWORD"])@$(ENV["IOMBCKHOST"]):$(ENV["IOMBCKPORT"])/$(ENV["IOMBCKDB"])"
 end
 """
 creates a LibPQ connection String
@@ -110,7 +110,6 @@ end
 
 
 function user_from_id(userID)
-    parse_kw_array(str) = rsplit(replace(replace(str, "{"=>""), "}"=>""),",")
 
     user_df = query_postgres("api.readers", "forward", condition=string("WHERE userID='",userID,"'"), sorted=false)
     

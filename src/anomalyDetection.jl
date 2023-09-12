@@ -61,7 +61,7 @@ word_network_self_dist(mat::Matrix; dist_metric=Euclidean()) = pairwise(dist_met
 
 
 
-function get_burnin_dists_day(wn_s::AbstractArray{WordNetwork}, burnin::AbstractRange)
+function get_burnin_dists_day(wn_s::AbstractArray, burnin::AbstractRange)
     # burnin_dict = NamedTuple{String, AbstractArray}(x̄=>0.0, σ=>0.0)
     distances = Vector{Float64}()
     for i in burnin[2:end]
@@ -89,7 +89,7 @@ end
     Output:
         undetermined
 """
-function find_anomalies_day(wn_s::AbstractArray{WordNetwork}, burnin::AbstractRange)
+function find_anomalies_day(wn_s::AbstractArray, burnin::AbstractRange)
     m, s = get_burnin_dists_day(wn_s, burnin)
     
     check_range = burnin[end]+1:length(wn_s)
@@ -108,7 +108,7 @@ end
 
 
 
-function find_mean_word_dist(wn_s::AbstractArray{WordNetwork})
+function find_mean_word_dist(wn_s::AbstractArray)
     #m, s = get_burnin_dists_day(wn_s, burnin)
     
     

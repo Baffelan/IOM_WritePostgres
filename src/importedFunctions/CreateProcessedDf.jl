@@ -27,7 +27,7 @@ end
                                         anomalou_articles TEXT[]
                                         )
 """
-function format_processed_to_df(wn_s::Base.AbstractVecOrTuple{WordNetwork}, raw_data::Base.AbstractVecOrTuple{DataFrame})
+function format_processed_to_df(wn_s::Base.AbstractVecOrTuple, raw_data::Base.AbstractVecOrTuple)
     date_text = text_and_date.(raw_data)
     date = [dt[1] for dt in date_text]
     day_text = [dt[2] for dt in date_text]
@@ -50,7 +50,7 @@ fill_blank_dates!(df, dates) = df.date=dates
 """
 Function to create the processed dataframe
 """
-function create_processed_df(dfs_trace::Vector{DataFrame}, kw::AbstractString, alignment_tokens::Base.AbstractVecOrTuple, refmatrix::Union{Nothing, AbstractArray}, emb_dim::Int, burnin::UnitRange, bwns::Vector)
+function create_processed_df(dfs_trace::Vector, kw::AbstractString, alignment_tokens::Base.AbstractVecOrTuple, refmatrix::Union{Nothing, AbstractArray}, emb_dim::Int, burnin::UnitRange, bwns::Vector)
 
     word_nets = articles_to_word_network.(dfs_trace, [alignment_tokens], emb_dim, [refmatrix]);
     all_nets = vcat(bwns..., word_nets...)
@@ -61,6 +61,7 @@ function create_processed_df(dfs_trace::Vector{DataFrame}, kw::AbstractString, a
 
     net_df[!, :anomalous_day] = [in(i,anom) for i in 1:length(word_nets)]
     net_df[!,:word_count] = word_count.(net_df[!,:day_text])
+    println(length(find_mean_word_dist(word_nets)))
     net_df[!,:word_change] = vcat(Dict(), find_mean_word_dist(word_nets)...)
     net_df[!,:sentiment] = [mean(df.sentiment) for df in dfs_trace]
     # net_df[!,:most_shared] = most_shared.(dfs_trace)
