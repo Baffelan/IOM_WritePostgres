@@ -7,7 +7,6 @@ module WritePostgres
     # Main Functions 
     export process_todays_articles
     export onboard_user
-    export collect_data
 
     # Additional useful functions that are imported by MakeWebJSON
     export user_from_id

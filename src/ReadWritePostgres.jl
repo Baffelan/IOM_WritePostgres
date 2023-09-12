@@ -9,6 +9,8 @@ condition is an optional argument that is joined at the end of the query and wil
     eg "WHERE lang='eng'"
 
 test is a bool where if true, the query string is returned rather than executing the query.
+
+sorted determines if the resulting dataframe should be sorted by date. When accessing the api.Readers table this must be set to false.
 """
 function query_postgres(table::String, which_db::String; condition::String="", test::Bool=false, sorted::Bool=true)
     q = "SELECT * FROM $(table) $(condition)"
@@ -44,7 +46,7 @@ parse_array(A::Nothing) = []
 
 
 """
-Loads data into the table with the schema from createNewsAPITable.py
+Loads data into the table with the schema from ProcessedArticles in the IOM_MakePostgresTables
 """
 function load_processed_data(net_df)
     conn = LibPQ.Connection(get_back_connection())
@@ -73,7 +75,10 @@ function load_processed_data(net_df)
 end
 
 
+"""
+T
 
+"""
 function add_new_user(user_dict)
     conn = LibPQ.Connection(get_forward_connection())
     execute(conn, "BEGIN;")
@@ -108,7 +113,18 @@ function get_forward_connection()
     conn = "postgres://$(ENV["IOMFRNTUSER"]):$(ENV["IOMFRNTPASSWORD"])@$(ENV["IOMFRNTHOST"]):$(ENV["IOMFRNTPORT"])/$(ENV["IOMFRNTDB"])"
 end
 
+"""
+Takes a dictionary with information about a user and adds them to the api.Readers table.
 
+Example:
+user_info = JSON.json(Dict("name"=>"John Smith", "details"=>"useful customer info"))
+user_keywords = JSON.json(Dict("keywords"=>["facebook", "twitter", "meta", "metaverse"], 
+                               "location"=>"USA", 
+                               "language"=>"eng"))
+user = Dict("userID"=>999, "collectionID"=>1, "information"=>user_info, "keywords"=>user_keywords)
+
+add_new_user(user)
+"""
 function user_from_id(userID)
 
     user_df = query_postgres("api.readers", "forward", condition=string("WHERE userID='",userID,"'"), sorted=false)
@@ -121,11 +137,7 @@ function user_from_id(userID)
 end 
 
 
-# user_info = JSON.json(Dict("name"=>"John Smith", "details"=>"useful customer info"))
-# user_keywords = JSON.json(Dict("keywords"=>["facebook", "twitter", "meta", "metaverse", "musk", "zuckerberg", "social media", "messenger", "tiktok", "misinformation", "conspiracy"], "location"=>"USA", "language"=>"eng"))
-# user = Dict("userID"=>999, "collectionID"=>1, "information"=>user_info, "keywords"=>user_keywords)
 
-# add_new_user(user)
 
 # query_postgres("api.readers", "forward", sorted=false).keywords[1]
 # query_postgres("api.readers", "forward", sorted=false).keywords[]
