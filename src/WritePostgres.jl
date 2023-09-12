@@ -1,5 +1,11 @@
 module WritePostgres
 
+    using LibPQ
+    using Tables
+    using DataFrames
+    using JSON
+
+
     include("process_todays_articles.jl")
     include("ReadWritePostgres.jl")
     include("onboard_user.jl")
