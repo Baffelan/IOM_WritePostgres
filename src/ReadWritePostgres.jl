@@ -1,5 +1,3 @@
-using LibPQ, Tables, DataFrames, JSON
-
 """
 Function to query the postgres server. 
 
@@ -104,13 +102,23 @@ end
 creates a LibPQ connection String
 """
 function get_back_connection()
-    conn = "postgres://$(ENV["IOMBCKUSER"]):$(ENV["IOMBCKPASSWORD"])@$(ENV["IOMBCKHOST"]):$(ENV["IOMBCKPORT"])/$(ENV["IOMBCKDB"])"
+    if haskey(ENV, "IOMBCKUSER") * haskey(ENV, "IOMBCKPASSWORD") * haskey(ENV, "IOMBCKHOST") * haskey(ENV, "IOMBCKPORT") * haskey(ENV, "IOMBCKDB")
+        conn = "postgres://$(ENV["IOMBCKUSER"]):$(ENV["IOMBCKPASSWORD"])@$(ENV["IOMBCKHOST"]):$(ENV["IOMBCKPORT"])/$(ENV["IOMBCKDB"])"
+        return conn
+    else
+        error("Missing Keys in the Environment variables")
+    end
 end
 """
 creates a LibPQ connection String
 """
 function get_forward_connection()
-    conn = "postgres://$(ENV["IOMFRNTUSER"]):$(ENV["IOMFRNTPASSWORD"])@$(ENV["IOMFRNTHOST"]):$(ENV["IOMFRNTPORT"])/$(ENV["IOMFRNTDB"])"
+    if haskey(ENV, "IOMFRNTUSER") * haskey(ENV, "IOMFRNTPASSWORD") * haskey(ENV, "IOMFRNTHOST") * haskey(ENV, "IOMFRNTPORT") * haskey(ENV, "IOMFRNTDB")
+        conn = "postgres://$(ENV["IOMFRNTUSER"]):$(ENV["IOMFRNTPASSWORD"])@$(ENV["IOMFRNTHOST"]):$(ENV["IOMFRNTPORT"])/$(ENV["IOMFRNTDB"])"
+        return conn
+    else
+        error("Missing Keys in the Environment variables")
+    end
 end
 
 """
