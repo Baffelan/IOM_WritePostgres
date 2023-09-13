@@ -1,5 +1,3 @@
-using JSON
-using Dates
 #  include("WordNetwork/WordNetwork.jl")
 
 # function make_to_wn(proc_df_row)

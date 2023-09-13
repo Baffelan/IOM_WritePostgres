@@ -1,4 +1,3 @@
-using Languages
 
 """
 Produces a dictionary of words->number of occurances in a given text.

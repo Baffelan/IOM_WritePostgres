@@ -1,7 +1,4 @@
-using DotProductGraphs
-using Printf
-using DataFrames
-using LinearAlgebra
+
 """
 WordNetwork is a struct for handling operations for which we need a mixture of information.
 

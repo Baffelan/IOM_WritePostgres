@@ -1,15 +1,4 @@
-using JSON
-using DataFrames
-using Dates
 
-include("WordNetwork/WordNetwork.jl")
-# include("importedFunctions/WordNetwork/articles_to_word_network.jl")
-include("ReadWritePostgres.jl")
-include("anomalyDetection.jl")
-include("importedFunctions/kw_data_frame.jl")
-# include("importedFunctions/Analysis/word_count.jl")
-include("importedFunctions/CreateProcessedDf.jl")
-include("get_baseline_df.jl")
 
 """
 processes the previous day's news articles into the processed table schema
@@ -23,19 +12,19 @@ function process_todays_articles(userID)
 
     user_agg = string(userID,"_aggregated")
 
-    df = query_postgres("raw", "back", condition=string("WHERE lang='eng' ", 
+    df = query_postgres("raw", "back", condition=string("WHERE lang='eng' ",
                                                         "AND user_ID='",userID,"'",
                                                         "AND date<='",DAY_RANGE[2],"' ",
                                                         "AND DATE >= '",DAY_RANGE[1],"'"))
     #split_on_day(df) = [df[df[!,:date].==d,:] for d in unique(df[!,:date])]
 
     kws = rsplit(df.keywords[1][2:end-1],",")[1:10]
-    
+
     kw_dfs = kw_data_frame.(kws, [df])
     kw_dict = Dict(zip(kws, kw_dfs))
 
     kw_dict[user_agg] = df
-    
+
     # baseline_df = get_baseline_df(userID, (BURNIN_RANGE[1],BURNIN_RANGE[2]))
 
     # refmatrix = subembedding_from_tokens(burnin_ws[user_agg][1], ALIGNMENT_TOKENS, aligned=true)

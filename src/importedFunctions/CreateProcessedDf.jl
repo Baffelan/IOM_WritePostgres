@@ -1,19 +1,3 @@
-include("format_text.jl")
-include("../WordNetwork/articles_to_word_network.jl")
-
-## Create Processed Columnns
-include("./createProcessedCols/articles_col.jl")
-include("./createProcessedCols/day_text_col.jl")
-include("./createProcessedCols/word_count_col.jl")
-include("./createProcessedCols/sentiment_col.jl")
-include("./createProcessedCols/emb_tok_align_col.jl")
-include("createProcessedCols/anomalous_day_col.jl")
-include("createProcessedCols/word_change_col.jl")
-
-
-
-
-
 
 """
 Takes a series of arguments:
