@@ -48,10 +48,12 @@ Base.show(io::IO, ::MIME"text/plain", f::WordNetwork) = @printf(io, "WordNetwork
 function coocurrence_matrix(text::String; unit::AbstractChar=' ', coocur::AbstractChar='.')
     words = rsplit(replace(text, coocur=>" "), unit)
     unique!(words)
+    
+
 
     token_idx = Dict(zip(words, 1:length(words)))
 
-    mat = zeros(Bool, (length(words), length(words)))
+    mat = zeros(Float32, (length(words), length(words)))
 
     
     sentences = rsplit(text, coocur)
@@ -65,6 +67,33 @@ function coocurrence_matrix(text::String; unit::AbstractChar=' ', coocur::Abstra
             end
         end
     end
+    return mat, token_idx
+end
+
+function coocurrence_matrix_2(text::String; unit::AbstractChar=' ', coocur::AbstractChar='.')
+    words = rsplit(replace(text, coocur=>" "), unit)
+    unique!(words)
+    words = words[words.!=""]
+
+    token_idx = Dict(zip(words, 1:length(words)))
+    mat = zeros(Float16, (length(words), length(words)))
+
+    
+    sentences = rsplit(text, coocur)
+
+    @time word_sent_mat = hcat([in.(words, [rsplit(sent, unit)]) for sent in sentences]...)
+    @time mat = word_sent_mat*word_sent_mat'.>0
+
+    # for sent in sentences
+        
+    #     for word1 in unique(rsplit(sent, unit)) 
+    #         for word2 in unique(rsplit(sent, unit))
+    #             if (word1 != "" && word2!="") 
+    #                 @inbounds mat[token_idx[word1],token_idx[word2]]=1
+    #             end
+    #         end
+    #     end
+    # end
     return mat, token_idx
 end
 
@@ -84,12 +113,15 @@ function qr_svd(Mat::T, dim::O = nothing) where {T <: AbstractMatrix, O <: Union
 end
 
 function WordNetwork(text::String, emb_d::Int)
-    text_graph, token_idx = coocurrence_matrix(text)
+    @time text_graph, token_idx = coocurrence_matrix(text)
     embedding=NamedTuple()
     try
-        embedding = DotProductGraphs.svd_embedding(text_graph, min(size(text_graph)[1],emb_d))
+        println("first")
+        f(A,d) = FameSVD.fsvd(A) 
+        @time embedding = DotProductGraphs.svd_embedding(text_graph, f, min(size(text_graph)[1],emb_d))
     catch e
-        embedding = DotProductGraphs.svd_embedding(text_graph, qr_svd, min(size(text_graph)[1],emb_d))
+        println("second")
+        @time embedding = DotProductGraphs.svd_embedding(text_graph, qr_svd, min(size(text_graph)[1],emb_d))
     end;
     
     alignment_matrix = nothing    

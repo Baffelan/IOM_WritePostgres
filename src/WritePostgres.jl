@@ -13,6 +13,7 @@ module WritePostgres
     using DataFrames
     using LinearAlgebra
     using Languages
+    using FameSVD
 
     include("process_todays_articles.jl")
     include("ReadWritePostgres.jl")
@@ -45,13 +46,5 @@ module WritePostgres
     export query_postgres
     export get_back_connection
     export get_forward_connection
-
-
-
-
-
-
-
-
 
 end

@@ -33,7 +33,7 @@ function articles_to_word_network(articles::DataFrame, alignment_tokens::Base.Ab
     #println("Processing articles from ", articles[1,"date"]," has been completed")
     wn_s = WordNetwork(ftext, emb)
     # refmatrix = get_ref_matrix(wn_s, alignment_tokens)
-    aligning_matrix!(wn_s; tokens=alignment_tokens, A=refmatrix)  
+    @time aligning_matrix!(wn_s; tokens=alignment_tokens, A=refmatrix)  
     
     # dist_dicts = word_embedding_dists.([wn_s[1]], wn_s)
     return wn_s
