@@ -29,7 +29,7 @@ function process_todays_articles(userID)
                                                         "AND DATE >= '",DAY_RANGE[1],"'"))
     #split_on_day(df) = [df[df[!,:date].==d,:] for d in unique(df[!,:date])]
 
-    kws = rsplit(df.keywords[1][2:end-1],",")
+    kws = rsplit(df.keywords[1][2:end-1],",")[1:10]
     
     kw_dfs = kw_data_frame.(kws, [df])
     kw_dict = Dict(zip(kws, kw_dfs))
@@ -47,8 +47,9 @@ function process_todays_articles(userID)
     analysed = create_processed_df.(values(kw_dict), ks, [ALIGNMENT_TOKENS], [[1.0 0.0; 0.0 1.0; 0.0 1.0]], [2], [[0.0, 1.0]])#[refmatrix], [2], dase_dist)
 
 
-    all_dates = [unique(df.date)[1] for df in kw_dict[user_agg]]
+    all_dates = unique(kw_dict[user_agg].date)
 
+    fill_blank_dates!(df, dates) = df.date=dates
     fill_blank_dates!.(analysed,[all_dates])
 
     big_df = vcat(analysed...)
@@ -61,5 +62,5 @@ function process_todays_articles(userID)
     load_processed_data(big_df[big_df.date .== DAY_RANGE[2],:])
     return big_df[big_df.date .== DAY_RANGE[2],:]
 end
-
+userID=999
 process_todays_articles(999)
