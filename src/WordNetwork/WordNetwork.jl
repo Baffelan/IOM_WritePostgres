@@ -112,17 +112,22 @@ function qr_svd(Mat::T, dim::O = nothing) where {T <: AbstractMatrix, O <: Union
   
 end
 
+function fast_svd(A, d)
+ L, Σ, R = FameSVD.fsvd(A)
+ return(L[:,1:d], Σ[1:d], R[:,1:d])
+end
+
 function WordNetwork(text::String, emb_d::Int)
     @time text_graph, token_idx = coocurrence_matrix(text)
     embedding=NamedTuple()
-    try
+    # try
         println("first")
-        f(A,d) = FameSVD.fsvd(A) 
-        @time embedding = DotProductGraphs.svd_embedding(text_graph, f, min(size(text_graph)[1],emb_d))
-    catch e
-        println("second")
-        @time embedding = DotProductGraphs.svd_embedding(text_graph, qr_svd, min(size(text_graph)[1],emb_d))
-    end;
+         
+        @time embedding = DotProductGraphs.svd_embedding(text_graph, fast_svd, min(size(text_graph)[1],emb_d))
+    # catch e
+    #     println("second")
+    #     @time embedding = DotProductGraphs.svd_embedding(text_graph, qr_svd, min(size(text_graph)[1],emb_d))
+    # end;
     
     alignment_matrix = nothing    
 
