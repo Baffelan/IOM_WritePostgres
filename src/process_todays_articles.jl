@@ -38,8 +38,8 @@ function process_todays_articles(userID)
 
     all_dates = unique(kw_dict[user_agg].date)
 
-    fill_blank_dates!(df, dates) = df.date=dates
-    fill_blank_dates!.(analysed,[all_dates])
+    # fill_blank_dates!(df, dates) = df.date=dates
+    # fill_blank_dates!.(analysed,[all_dates])
 
     big_df = vcat(analysed...)
     big_df.user_ID .= userID
