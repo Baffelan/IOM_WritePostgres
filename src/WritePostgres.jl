@@ -9,12 +9,10 @@ module WritePostgres
     using Statistics
     using Distances
     using DotProductGraphs
-using Printf
-using DataFrames
-using LinearAlgebra
-using Languages
-
-
+    using Printf
+    using DataFrames
+    using LinearAlgebra
+    using Languages
 
     include("process_todays_articles.jl")
     include("ReadWritePostgres.jl")

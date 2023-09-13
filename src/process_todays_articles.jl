@@ -33,7 +33,7 @@ function process_todays_articles(userID)
 
     # base_dist = [get_baseline_dists_day(baseline_df[k]) for k in ks]
 
-    analysed = create_processed_df.(values(kw_dict), ks, [ALIGNMENT_TOKENS], [[1.0 0.0; 0.0 1.0; 0.0 1.0]], [2], [[0.0, 1.0]])#[refmatrix], [2], dase_dist)
+    analysed = create_processed_df.(values(kw_dict), ks, [ALIGNMENT_TOKENS], [[1.0 0.0; 0.0 1.0; 0.0 1.0]], [2], [[0.0, 0.5]])#[refmatrix], [2], dase_dist)
 
 
     all_dates = unique(kw_dict[user_agg].date)
