@@ -4,6 +4,10 @@ module WritePostgres
     using Tables
     using DataFrames
     using JSON
+    using Dates
+    using TimeZones
+    using Statistics
+    using Distances
 
 
     include("process_todays_articles.jl")

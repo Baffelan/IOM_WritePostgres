@@ -4,7 +4,7 @@ using Languages
 Produces a dictionary of words->number of occurances in a given text.
 Used for making the word cloud.
 """
-function word_count(text)
+function word_count_col(text::AbstractString)
     sw = stopwords(Languages.English())
 
     not_sw = [in(_t,sw) ? nothing : _t for _t in rsplit(replace(text, "."=>""), " ")]
