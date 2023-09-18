@@ -165,7 +165,6 @@ end
 
 sub_index(l::Dict, is) = map(x->l[x], is)
 sub_index(l::AbstractArray, is) = map(x->l[x,:], is)
-sub_index(l::AbstractArray, is) = map(x->l[x,:], is)
 
 """
     A function that returns the submatrix associated with the tokens in the ALIGNMENT Tuple

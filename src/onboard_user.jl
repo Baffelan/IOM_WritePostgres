@@ -7,47 +7,81 @@ Collects a large amount of information in the burnin period and processes is to 
 function onboard_user(userID)
     conf = JSON.parsefile("config.json")
     ALIGNMENT_TOKENS = conf["ALIGNMENT_TOKENS"]
-    DAY_RANGE = conf["DAY_RANGE"]
+    DAY_RANGE = Date.(conf["DAY_RANGE"])
     BURNIN_RANGE = Date.(conf["BURNIN_RANGE"])
     EMBEDDING_DIM = conf["EMBEDDING_DIM"]
 
-
     user_agg = string(userID,"_aggregated")
 
-    df = query_postgres("raw", "back", condition=string("WHERE lang='eng' ", 
-                                                        "AND user_ID=",userID," ",
+    df = query_postgres("raw", "back", condition=string("WHERE lang='eng' ",
+                                                        "AND user_ID='",userID,"'",
                                                         "AND date<='",BURNIN_RANGE[2],"' ",
-                                                        "AND date >= '",BURNIN_RANGE[1],"'"))
-
-    #########
-    split_on_day(df) = [df[df[!,:date].==d,:] for d in unique(df[!,:date])]
+                                                        "AND DATE >= '",BURNIN_RANGE[1],"'"))
+    #split_on_day(df) = [df[df[!,:date].==d,:] for d in unique(df[!,:date])]
 
     kws = rsplit(df.keywords[1][2:end-1],",")
-    
-    kw_dfs = kw_data_frame.(kws, [df])
-    kw_dict = Dict(zip(kws, split_on_day.(kw_dfs)))
 
-    kw_dict[user_agg] = split_on_day(df)
-    
-    # burnin_ws = get_burnin_wns(userID, (BURNIN_RANGE[1],BURNIN_RANGE[1]))
-    refmatrix = get_ref_matrix(kw_dict[user_agg][1], ALIGNMENT_TOKENS, EMBEDDING_DIM)
+    kw_dfs = kw_data_frame.(kws, [df])
+    kw_dict = Dict(zip(kws, kw_dfs))
+
+    kw_dict[user_agg] = df
+
+    # baseline_df = get_baseline_df(userID, (BURNIN_RANGE[1],BURNIN_RANGE[2]))
+
+    refmatrix = subembedding_from_tokens(WordNetwork(string(df[df.date.==BURNIN_RANGE[1],:body]), EMBEDDING_DIM), ALIGNMENT_TOKENS, aligned=true)
 
     ks = keys(kw_dict)
 
-    # burnin_trace = [burnin_ws[k] for k in ks]
+    # base_dist = [get_baseline_dists_day(baseline_df[k]) for k in ks]
 
-    analysed = create_processed_df.(values(kw_dict), ks, [ALIGNMENT_TOKENS], [refmatrix], [2], [1:1], [[]])
+    analysed = create_processed_df.(values(kw_dict), ks, [ALIGNMENT_TOKENS], [refmatrix], [EMBEDDING_DIM], [[0.0, 10.0]])#[refmatrix], [2], dase_dist)
 
 
-    all_dates = [unique(df.date)[1] for df in kw_dict[user_agg]]
+    all_dates = unique(kw_dict[user_agg].date)
 
-    fill_blank_dates!.(analysed,[all_dates])
+    # fill_blank_dates!(df, dates) = df.date=dates
+    # fill_blank_dates!.(analysed,[all_dates])
 
     big_df = vcat(analysed...)
     big_df.user_ID .= userID
+
+
     sort!(big_df, :date)
 
 
     load_processed_data(big_df)
+    return big_df
+
+    #####################################
+    # split_on_day(df) = [df[df[!,:date].==d,:] for d in unique(df[!,:date])]
+
+    # kws = rsplit(df.keywords[1][2:end-1],",")
+    
+    # kw_dfs = kw_data_frame.(kws, [df])
+    # kw_dict = Dict(zip(kws, split_on_day.(kw_dfs)))
+
+    # kw_dict[user_agg] = split_on_day(df)
+    
+    # # burnin_ws = get_burnin_wns(userID, (BURNIN_RANGE[1],BURNIN_RANGE[1]))
+    # refmatrix = get_ref_matrix(kw_dict[user_agg][1], ALIGNMENT_TOKENS, EMBEDDING_DIM)
+
+    # ks = keys(kw_dict)
+
+    # # burnin_trace = [burnin_ws[k] for k in ks]
+
+    # analysed = create_processed_df.(values(kw_dict), ks, [ALIGNMENT_TOKENS], [refmatrix], [2], [1:1], [[]])
+
+
+    # all_dates = [unique(df.date)[1] for df in kw_dict[user_agg]]
+
+    # fill_blank_dates!.(analysed,[all_dates])
+
+    # big_df = vcat(analysed...)
+    # big_df.user_ID .= userID
+    # sort!(big_df, :date)
+
+
+    # load_processed_data(big_df)
 end
+# onboard_user(999)
 

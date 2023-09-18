@@ -5,7 +5,7 @@ processes the previous day's news articles into the processed table schema
 """
 function process_todays_articles(userID)
     conf = JSON.parsefile("config.json")
-    ALIGNMENT_TOKENS = conf["ALIGNMENT_TOKENS"][1:3]
+    ALIGNMENT_TOKENS = conf["ALIGNMENT_TOKENS"]
     DAY_RANGE = Date.(conf["DAY_RANGE"])
     BURNIN_RANGE = Date.(conf["BURNIN_RANGE"])
     EMBEDDING_DIM = conf["EMBEDDING_DIM"]
@@ -18,22 +18,24 @@ function process_todays_articles(userID)
                                                         "AND DATE >= '",DAY_RANGE[1],"'"))
     #split_on_day(df) = [df[df[!,:date].==d,:] for d in unique(df[!,:date])]
 
-    kws = rsplit(df.keywords[1][2:end-1],",")[1:10]
+    kws = rsplit(df.keywords[1][2:end-1],",")
 
     kw_dfs = kw_data_frame.(kws, [df])
     kw_dict = Dict(zip(kws, kw_dfs))
 
     kw_dict[user_agg] = df
 
-    # baseline_df = get_baseline_df(userID, (BURNIN_RANGE[1],BURNIN_RANGE[2]))
+    baseline_df = get_baseline_df(userID, (BURNIN_RANGE[1],BURNIN_RANGE[2]))
+    base_dict = Dict([df.keyword[1]=>df for df in baseline_df]...)
 
-    # refmatrix = subembedding_from_tokens(burnin_ws[user_agg][1], ALIGNMENT_TOKENS, aligned=true)
+    refmatrix = hcat(sub_index(base_dict[user_agg][1,:embedding]', sub_index(JSON.parse(base_dict[user_agg][1,:token_idx]), ALIGNMENT_TOKENS))...)'
 
-    ks = keys(kw_dict)
+    ks = [k for k in keys(kw_dict) if k in keys(base_dict)]
+    vs = [v for (k,v) in pairs(kw_dict) if k in keys(base_dict)]
 
-    # base_dist = [get_baseline_dists_day(baseline_df[k]) for k in ks]
+    base_dist = [get_baseline_dists_day(base_dict[k]) for k in ks if k in keys(base_dict)]
 
-    analysed = create_processed_df.(values(kw_dict), ks, [ALIGNMENT_TOKENS], [[1.0 0.0; 0.0 1.0; 0.0 1.0]], [2], [[0.0, 0.5]])#[refmatrix], [2], dase_dist)
+    analysed = create_processed_df.(vs, ks, [ALIGNMENT_TOKENS], [refmatrix], [2], base_dist)
 
 
     all_dates = unique(kw_dict[user_agg].date)
@@ -51,5 +53,21 @@ function process_todays_articles(userID)
     load_processed_data(big_df[big_df.date .== DAY_RANGE[2],:])
     return big_df[big_df.date .== DAY_RANGE[2],:]
 end
-# userID=999
+userID=999
 # process_todays_articles(999)
+
+q = "Delete FROM api.papers where userid='999'"
+
+
+c = get_forward_connection()
+
+
+conn = LibPQ.Connection(c)
+result = execute(conn, q)
+
+close(conn);
+
+result
+
+q = query_postgres("api.papers", "forward", sorted=false)
+JSON.parse(q[2, :papers])["data"]["keywords"]

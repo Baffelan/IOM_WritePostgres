@@ -21,20 +21,19 @@ using Dates
 Aligns the indeces of each 
 """
 function create_interacting_embedding(df1::DataFrameRow, df2::DataFrameRow)
-    toks1 = df1.token_idx
-    toks2 = df2.token_idx
+
+    toks1 = typeof(df1.token_idx)==String ? JSON.parse(df1.token_idx) : df1.token_idx
+    toks2 = typeof(df2.token_idx)==String ? JSON.parse(df2.token_idx) : df2.token_idx
 
     all_toks = union(keys(toks1), keys(toks2))
     int_toks = intersect(keys(toks1), keys(toks2))
     
     emb_dim = max(size(df1.embedding)[2], size(df2.embedding)[2])
-
     bigm1 = zeros(Float64, (length(all_toks), emb_dim))
     bigm2 = zeros(Float64, (length(all_toks), emb_dim))
 
     int_locs1 = [toks1[k] for k in int_toks]
     int_locs2 = [toks2[k] for k in int_toks]
-
 
     bigm1[1:length(int_toks),:].=df1.embedding[int_locs1,:]
 
@@ -61,9 +60,11 @@ word_network_self_dist(mat::Matrix; dist_metric=Euclidean()) = pairwise(dist_met
 
 function get_baseline_dists_day(base_df::DataFrame)
     # burnin_dict = NamedTuple{String, AbstractArray}(x̄=>0.0, σ=>0.0)
+    println(unique(base_df.keyword))
     distances = Vector{Float64}()
     for r in 2:nrow(base_df)
-        i_mats = create_interacting_embedding(base_df[r],base_df[r-1])
+        row = DataFrame(:embedding=>[base_df[r,:embedding]', base_df[r-1,:embedding]'], :token_idx=>[JSON.parse(base_df[r,:token_idx]), JSON.parse(base_df[r-1,:token_idx])])
+        i_mats = create_interacting_embedding(row[1,:],row[2,:])
         self_dists = word_network_self_dist.(i_mats[1:2])
         dists = mean(abs.(self_dists[1].-self_dists[2]))
         push!(distances, dists)
