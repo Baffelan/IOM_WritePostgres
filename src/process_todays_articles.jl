@@ -53,21 +53,3 @@ function process_todays_articles(userID)
     load_processed_data(big_df[big_df.date .== DAY_RANGE[2],:])
     return big_df[big_df.date .== DAY_RANGE[2],:]
 end
-userID=999
-# process_todays_articles(999)
-
-q = "Delete FROM api.papers where userid='999'"
-
-
-c = get_forward_connection()
-
-
-conn = LibPQ.Connection(c)
-result = execute(conn, q)
-
-close(conn);
-
-result
-
-q = query_postgres("api.papers", "forward", sorted=false)
-JSON.parse(q[2, :papers])["data"]["keywords"]
