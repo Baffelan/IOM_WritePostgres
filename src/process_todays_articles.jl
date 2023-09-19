@@ -14,8 +14,8 @@ function process_todays_articles(userID)
 
     df = query_postgres("raw", "back", condition=string("WHERE lang='eng' ",
                                                         "AND user_ID='",userID,"'",
-                                                        "AND date<='",DAY_RANGE[2],"' ",
-                                                        "AND DATE >= '",DAY_RANGE[1],"'"))
+                                                        "AND date<='",today()-Day(1),"' ",
+                                                        "AND DATE >= '",today()-Day(1),"'"))
     #split_on_day(df) = [df[df[!,:date].==d,:] for d in unique(df[!,:date])]
 
     kws = rsplit(df.keywords[1][2:end-1],",")
