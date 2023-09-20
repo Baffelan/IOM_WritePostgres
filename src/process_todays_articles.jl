@@ -22,7 +22,7 @@ function process_todays_articles(userID)
     kw_dfs = kw_data_frame.(kws, [df])
     kw_dict = Dict(zip(kws, kw_dfs))
 
-    kw_dict[user_agg] = df
+    kw_dict[user_agg] = df[1:min(500,nrow(df)),:]
 
     baseline_df = get_baseline_df(userID, (BURNIN_RANGE[1],BURNIN_RANGE[2]))
     base_dict = Dict([df.keyword[1]=>df for df in baseline_df]...)

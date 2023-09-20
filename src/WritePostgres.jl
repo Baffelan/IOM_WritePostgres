@@ -13,7 +13,9 @@ module WritePostgres
     using DataFrames
     using LinearAlgebra
     using Languages
-    using FameSVD
+    #using FameSVD
+    using LoopVectorization
+
 
     include("process_todays_articles.jl")
     include("ReadWritePostgres.jl")
@@ -23,6 +25,7 @@ module WritePostgres
 
     include("WordNetwork/WordNetwork.jl")
     include("WordNetwork/articles_to_word_network.jl")
+    include("WordNetwork/fast_svd.jl")
 
     include("importedFunctions/kw_data_frame.jl")
     include("importedFunctions/CreateProcessedDf.jl")

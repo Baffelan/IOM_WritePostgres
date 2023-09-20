@@ -12,7 +12,7 @@ Takes a series of arguments:
 """
 function create_processed_df(raw_df::DataFrame, kw::AbstractString, alignment_tokens::Base.AbstractVecOrTuple, refmatrix::Union{Nothing, AbstractArray}, emb_dim::Int, base_dist::Base.AbstractVecOrTuple{Float64})
     println("Analysing keyword: ",kw)
-    
+    println(string("DataFrame has ", nrow(raw_df)," rows."))
     base_mean, base_std = base_dist
     df = DataFrame("date"=>sort(unique(raw_df.date)))
     df[!, :keyword] .= kw
