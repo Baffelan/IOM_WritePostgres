@@ -10,45 +10,25 @@ function process_todays_articles(userID)
     EMBEDDING_DIM = conf["EMBEDDING_DIM"]
 
     user_agg = string(userID,"_aggregated")
+    day_range = [today()-Day(1),today()-Day(0)]
 
+    old_df = query_postgres("processedarticles", "back", condition=string("WHERE user_ID='",userID,"'", "AND date='",day_range[2],"'"))
     df = query_postgres("raw", "back", condition=string("WHERE lang='eng' ",
                                                         "AND user_ID='",userID,"'",
-                                                        "AND date<='",today()-Day(1),"' ",
-                                                        "AND DATE >= '",today()-Day(1),"'"))
-    #split_on_day(df) = [df[df[!,:date].==d,:] for d in unique(df[!,:date])]
+                                                        "AND date<='",day_range[2],"' ",
+                                                        "AND DATE >= '",day_range[1],"'"))
 
-    kws = rsplit(df.keywords[1][2:end-1],",")
+    kw_dataframes, kws, base_dist, refmatrix = set_up_inputs(df, BURNIN_RANGE, user_agg, ALIGNMENT_TOKENS)
+    analysed = create_processed_df.(kw_dataframes, kws, [ALIGNMENT_TOKENS], [refmatrix], [5], base_dist, [day_range]) # indexing on kw_df and kw needs to go
 
-    kw_dfs = kw_data_frame.(kws, [df])
-    kw_dict = Dict(zip(kws, kw_dfs))
-
-    kw_dict[user_agg] = df[1:min(500,nrow(df)),:]
-
-    baseline_df = get_baseline_df(userID, (BURNIN_RANGE[1],BURNIN_RANGE[2]))
-    base_dict = Dict([df.keyword[1]=>df for df in baseline_df]...)
-
-    refmatrix = hcat(sub_index(base_dict[user_agg][1,:embedding], sub_index(JSON.parse(base_dict[user_agg][1,:token_idx]), ALIGNMENT_TOKENS))...)
-
-    ks = [k for k in keys(kw_dict) if k in keys(base_dict)]
-    vs = [v for (k,v) in pairs(kw_dict) if k in keys(base_dict)]
-
-    base_dist = [get_baseline_dists_day(base_dict[k]) for k in ks if k in keys(base_dict)]
-
-    analysed = create_processed_df.(vs, ks, [ALIGNMENT_TOKENS], [refmatrix], [2], base_dist)
-
-
-    all_dates = unique(kw_dict[user_agg].date)
-
-    # fill_blank_dates!(df, dates) = df.date=dates
-    # fill_blank_dates!.(analysed,[all_dates])
-
+    # all_dates = unique(kw_dict[user_agg].date)
     big_df = vcat(analysed...)
     big_df.user_ID .= userID
 
-
     sort!(big_df, :date)
 
-
-    load_processed_data(big_df[big_df.date .== DAY_RANGE[2],:])
-    return big_df[big_df.date .== DAY_RANGE[2],:]
+    load_processed_data(big_df[big_df.date .== today()-Day(1),:])
+    return big_df[big_df.date .== today()-Day(1),:]
 end
+
+
