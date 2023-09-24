@@ -28,23 +28,29 @@ function create_interacting_embedding(df1::DataFrameRow, df2::DataFrameRow)
     all_toks = union(keys(toks1), keys(toks2))
     int_toks = intersect(keys(toks1), keys(toks2))
     
-    emb_dim = max(size(df1.embedding)[1], size(df2.embedding)[1])
+    emb_dim = max(size(df1.embedding)[2], size(df2.embedding)[2])
     bigm1 = zeros(Float64, (length(all_toks), emb_dim))
     bigm2 = zeros(Float64, (length(all_toks), emb_dim))
 
     int_locs1 = [toks1[k] for k in int_toks]
     int_locs2 = [toks2[k] for k in int_toks]
 
-    bigm1[1:length(int_toks),:].=df1.embedding'[int_locs1,:]
 
     non_int1 = [toks1[k] for k in setdiff(keys(toks1),int_toks)]
-    bigm1[length(int_toks)+1:length(int_toks)+length(non_int1),:].=df1.embedding'[non_int1,:]
 
+    if length(toks1)>0
+        bigm1[1:length(int_toks),:].=df1.embedding[int_locs1,:]
+        bigm1[length(int_toks)+1:length(int_toks)+length(non_int1),:].=df1.embedding[non_int1,:]
+    end
     
-    bigm2[1:length(int_toks),:].=df2.embedding'[int_locs2,:]
 
     non_int2 = [toks2[k] for k in setdiff(keys(toks2), int_toks)]
-    bigm2[length(int_toks)+1+length(non_int1):end,:].=df2.embedding'[non_int2,:]
+
+    if length(toks2)>0
+    bigm2[1:length(int_toks),:].=df2.embedding[int_locs2,:]
+    bigm2[length(int_toks)+1+length(non_int1):end,:].=df2.embedding[non_int2,:]
+    end
+
     return bigm1, bigm2, vcat([k for k in int_toks], [k for k in setdiff(keys(toks1),int_toks)], [k for k in setdiff(keys(toks2), int_toks)])
 
 end
@@ -58,20 +64,7 @@ word_network_self_dist(mat::Matrix; dist_metric=Euclidean()) = pairwise(dist_met
 
 
 
-function get_baseline_dists_day(base_df::DataFrame)
-    # burnin_dict = NamedTuple{String, AbstractArray}(x̄=>0.0, σ=>0.0)
-    println(unique(base_df.keyword))
-    distances = Vector{Float64}()
-    for r in 2:nrow(base_df)
-        row = DataFrame(:embedding=>[base_df[r,:embedding]', base_df[r-1,:embedding]'], :token_idx=>[JSON.parse(base_df[r,:token_idx]), JSON.parse(base_df[r-1,:token_idx])])
-        i_mats = create_interacting_embedding(row[1,:],row[2,:])
-        self_dists = word_network_self_dist.(i_mats[1:2])
-        dists = mean(abs.(self_dists[1].-self_dists[2]))
-        push!(distances, dists)
-    end
-    return mean(distances), std(distances)
 
-end
 
 
 """
