@@ -6,7 +6,7 @@ function fast_svd(A::Array{R, 2}, d::Int) where R<:AbstractFloat
     S = Array{R, 1}(undef, d)
 
     V = BLAS.syrk('U', 'T', 1.0, A)
-    @time (S, V) = LAPACK.syevr!('V', 'I', 'U', V, 0., 0., dim[2]-d, dim[2], 0.)
+    (S, V) = LAPACK.syevr!('V', 'I', 'U', V, 0., 0., dim[2]-d+1, dim[2], 0.)
 
     reverse!(S)
     @inbounds for i = 1:d
