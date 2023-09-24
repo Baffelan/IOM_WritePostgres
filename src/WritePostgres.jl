@@ -27,7 +27,7 @@ module WritePostgres
     include("WordNetwork/articles_to_word_network.jl")
     include("WordNetwork/fast_svd.jl")
 
-    include("importedFunctions/kw_data_frame.jl")
+    #include("importedFunctions/kw_data_frame.jl")
     include("importedFunctions/CreateProcessedDf.jl")
     include("importedFunctions/format_text.jl")
 
@@ -39,6 +39,12 @@ module WritePostgres
     include("importedFunctions/createProcessedCols/emb_tok_align_col.jl")
     include("importedFunctions/createProcessedCols/anomalous_day_col.jl")
     include("importedFunctions/createProcessedCols/word_change_col.jl")
+
+    ## Get inputs for processed df
+    include("inputSetup/createInputs/base_dist_input.jl")
+    include("inputSetup/createInputs/kw_data_frame_input.jl")
+    include("inputSetup/createInputs/refmatrix_input.jl")
+    include("inputSetup/set_up_inputs.jl")
     
     # Main Functions 
     export process_todays_articles
