@@ -1,5 +1,8 @@
 
-function day_text_col(raw_df::DataFrame, dates::Vector{Union{Missing,Date}})
+function day_text_col(raw_df::DataFrame, dates::Vector{Date})
+    
     day_text = [join(raw_df[raw_df.date.==d, :body], " ") for d in dates]
+    println(unique(raw_df.date))
+    println([d for d in dates])
     ftext = format_text.(day_text)
 end
