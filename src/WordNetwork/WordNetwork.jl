@@ -13,11 +13,11 @@ This includes:
 mutable struct WordNetwork
     # raw::Dict{String, Any}
     text_graph::AbstractArray{Bool}
-    embedding::NamedTuple{(:L̂, :R̂), Tuple{Matrix{Float64}, Matrix{Float64}}}
+    embedding::NamedTuple{(:L̂, :R̂), Tuple{Matrix{Float32}, Matrix{Float32}}}
     token_idx::Dict{String, Int}
 
     # Optional
-    aligning_matrix::Union{Matrix{Float64}, Nothing}
+    aligning_matrix::Union{Matrix{Float32}, Nothing}
 end
 
 Base.show(io::IO, ::MIME"text/plain", f::WordNetwork) = @printf(io, "WordNetwork with %s unique tokens",length(keys(f.token_idx)))
@@ -45,10 +45,13 @@ Base.show(io::IO, ::MIME"text/plain", f::WordNetwork) = @printf(io, "WordNetwork
     unit is the character upon which to split the string for defining nodes.
     coocur is the character to split the string to define a relation.
 """
-function coocurrence_matrix(text::String; unit::AbstractChar=' ', coocur::AbstractChar='.')
+function coocurrence_matrix(text::String, filtered_word_counts::Dict{T, Int}; unit::AbstractChar=' ', coocur::AbstractChar='.')where{T<:AbstractString}
     words = rsplit(replace(text, coocur=>" "), unit)
     unique!(words)
-    
+    words = words[words.!=""]
+    println("num words before filter: ", length(words))
+    words = words[in.(words, [keys(filtered_word_counts)])]
+    println("num words after filter: ", length(words))
 
 
     token_idx = Dict(zip(words, 1:length(words)))
@@ -57,12 +60,16 @@ function coocurrence_matrix(text::String; unit::AbstractChar=' ', coocur::Abstra
 
     
     sentences = rsplit(text, coocur)
+    unique!(sentences)
+    sentences = sentences[sentences.!=""]
     for sent in sentences
         
         for word1 in unique(rsplit(sent, unit)) 
-            for word2 in unique(rsplit(sent, unit))
-                if (word1 != "" && word2!="") 
-                    @inbounds mat[token_idx[word1],token_idx[word2]]=1
+            if in(word1, words)
+                for word2 in unique(rsplit(sent, unit))
+                    if in(word2, words)
+                        @inbounds mat[token_idx[word1],token_idx[word2]]=1
+                    end
                 end
             end
         end
@@ -70,19 +77,26 @@ function coocurrence_matrix(text::String; unit::AbstractChar=' ', coocur::Abstra
     return mat, token_idx
 end
 
-function coocurrence_matrix_2(text::String; unit::AbstractChar=' ', coocur::AbstractChar='.')
+function coocurrence_matrix_2(text::String, filtered_word_counts::Dict{T, Int}; unit::AbstractChar=' ', coocur::AbstractChar='.')where{T<:AbstractString}
     words = rsplit(replace(text, coocur=>" "), unit)
     unique!(words)
     words = words[words.!=""]
+    println("num words before filter: ", length(words))
+    words = words[in.(words, [keys(filtered_word_counts)])]
 
     token_idx = Dict(zip(words, 1:length(words)))
-    mat = zeros(Float16, (length(words), length(words)))
+    # mat = zeros(Float32, (length(words), length(words)))
 
     
     sentences = rsplit(text, coocur)
+    unique!(sentences)
+    sentences = sentences[sentences.!=""]
+    word_sent_mat = Matrix{Float32}(undef, (0,0))
+    
+    word_sent_mat = Float32.(hcat([in.(words, [rsplit(sent, unit)]) for sent in sentences]...))
 
-    @time word_sent_mat = hcat([in.(words, [rsplit(sent, unit)]) for sent in sentences]...)
-    @time mat = word_sent_mat*word_sent_mat'.>0
+    println(string("The coocurence matrix has ", length(sentences), " sentences and ", length(words)," words"))
+    #@time mat = word_sent_mat*word_sent_mat'.>0
 
     # for sent in sentences
         
@@ -94,7 +108,7 @@ function coocurrence_matrix_2(text::String; unit::AbstractChar=' ', coocur::Abst
     #         end
     #     end
     # end
-    return mat, token_idx
+    return word_sent_mat, token_idx
 end
 
 function qr_svd(Mat::T, dim::O = nothing) where {T <: AbstractMatrix, O <: Union{Nothing,<:Int,Function}}
@@ -117,21 +131,26 @@ end
 #  return(L[:,1:d], Σ[1:d], R[:,1:d])
 # end
 
-function WordNetwork(text::String, emb_d::Int)
-    @time text_graph, token_idx = coocurrence_matrix(text)
-    embedding=NamedTuple()
-    # try
-        println("first")
-         
-        @time embedding = DotProductGraphs.svd_embedding(text_graph, fast_svd, min(size(text_graph)[1],emb_d))
-    # catch e
-    #     println("second")
-    #     @time embedding = DotProductGraphs.svd_embedding(text_graph, qr_svd, min(size(text_graph)[1],emb_d))
-    # end;
-    
-    alignment_matrix = nothing    
+function WordNetwork(text::String, emb_d::Int, filtered_word_counts::Dict{T, Int}) where{T<:AbstractString}
+    if length(text)>0
+        text_graph, token_idx = coocurrence_matrix(text, filtered_word_counts)
+        embedding=NamedTuple()
+        # try
+            println("first, this is emb ",emb_d)
+            
+            @time embedding = DotProductGraphs.svd_embedding(text_graph, fast_svd, min(size(text_graph)[1],emb_d))
+        # catch e
+        #     println("second")
+        #     @time embedding = DotProductGraphs.svd_embedding(text_graph, qr_svd, min(size(text_graph)[1],emb_d))
+        # end;
+        
+        alignment_matrix = nothing    
 
-    WordNetwork(text_graph, embedding, token_idx, alignment_matrix)
+        return WordNetwork(text_graph, embedding, token_idx, alignment_matrix)
+    else
+        empty_embedding = (L̂=Matrix{Float32}(undef, (0,0)), R̂=Matrix{Float32}(undef, (0,0)))
+        return WordNetwork(Matrix{Float32}(undef, (0,0)), empty_embedding, Dict{String, Int64}(), nothing)
+    end
 end
 
 
@@ -140,7 +159,7 @@ end
     This is done for every word that the two WordNetworks have in common.
     This will be done for matrices that have been alligned, if an aligning matrix exists.
 """
-function word_embedding_dists(dt1::Dict{String, Int}, E1::Matrix{Float64}, dt2::Dict{String, Int}, E2::Matrix{Float64})
+function word_embedding_dists(dt1::Dict{String, Int}, E1::Matrix{Float32}, dt2::Dict{String, Int}, E2::Matrix{Float32})
     ints = intersect(keys(dt1), keys(dt2))
     dists=[]
     for int in ints
@@ -205,5 +224,5 @@ function aligning_matrix!(wn::WordNetwork; A::AbstractArray=REFMATRIX, tokens::B
     end
 end
 
-Base.getindex(wn::WordNetwork, idxs::AbstractVecOrMat{String}) = subembedding_from_tokens(wn; tokens=idxs)
+Base.getindex(wn::WordNetwork, idxs::AbstractVecOrMat{String}) = subembedding_from_tokens(wn, idxs)
 Base.getindex(wn::WordNetwork, idxs::String) = Base.getindex(wn, [idxs])

@@ -12,5 +12,6 @@ function word_count_col(text::AbstractString)
     not_sw = not_sw[length.(not_sw).>1]
 
     tally = combine(groupby(DataFrame(:words=>not_sw), :words),nrow)
-    Dict(zip(tally[!,:words], tally[!,:nrow]))
+    word_count = Dict(zip(tally[!,:words], tally[!,:nrow]))
+    Dict([k=>v for (k,v) in pairs(word_count) if v>5])
 end
