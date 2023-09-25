@@ -21,7 +21,7 @@ function create_processed_df(raw_df::DataFrame,
     println(string("DataFrame has ", nrow(raw_df)," rows."))
     println("")
     base_mean, base_std = base_dist
-    df = DataFrame("date"=>sort(days))
+    df = DataFrame("date"=>sort(unique(raw_df.date)))
     df[!, :keyword] .= kw
     df[!, :articles] = articles_col(raw_df, df.date)
     df[!, :day_text] = day_text_col(raw_df, df.date)

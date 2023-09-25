@@ -4,84 +4,40 @@ gets the user's information from the forward facing db.
 Collects a large amount of information in the burnin period and processes is to the back facing db.
 
 """
-function onboard_user(userID)
+function onboard_user(userID, day_range::Vector{Date}, calc_distribution::Bool)
     conf = JSON.parsefile("config.json")
     ALIGNMENT_TOKENS = conf["ALIGNMENT_TOKENS"]
-    DAY_RANGE = Date.(conf["DAY_RANGE"])
     BURNIN_RANGE = Date.(conf["BURNIN_RANGE"])
     EMBEDDING_DIM = conf["EMBEDDING_DIM"]
 
     user_agg = string(userID,"_aggregated")
 
+    old_df = query_postgres("processedarticles", "back", condition=string("WHERE user_ID='",userID,"'", "AND date='",day_range[2],"'"))
     df = query_postgres("raw", "back", condition=string("WHERE lang='eng' ",
                                                         "AND user_ID='",userID,"'",
-                                                        "AND date<='",BURNIN_RANGE[2],"' ",
-                                                        "AND DATE >= '",BURNIN_RANGE[1],"'"))
-    #split_on_day(df) = [df[df[!,:date].==d,:] for d in unique(df[!,:date])]
+                                                        "AND date<='",day_range[2],"' ",
+                                                        "AND DATE >= '",day_range[1],"'"))
 
-    kws = rsplit(df.keywords[1][2:end-1],",")
+    kw_dataframes, kws, base_dist, refmatrix = set_up_inputs(df, BURNIN_RANGE, user_agg, ALIGNMENT_TOKENS, calc_distribution)
 
-    kw_dfs = kw_data_frame.(kws, [df])
-    kw_dict = Dict(zip(kws, kw_dfs))
+    if !calc_distribution
+        base_dist = [base_dist,]
+        refmatrix = diagm(length(ALIGNMENT_TOKENS), EMBEDDING_DIM, ones(Float64, EMBEDDING_DIM))
+    end
 
-    kw_dict[user_agg] = df
+    analysed = create_processed_df.(kw_dataframes, kws, [ALIGNMENT_TOKENS], [refmatrix], [EMBEDDING_DIM], base_dist, [day_range]) # indexing on kw_df and kw needs to go
 
-    # baseline_df = get_baseline_df(userID, (BURNIN_RANGE[1],BURNIN_RANGE[2]))
-
-    refmatrix = subembedding_from_tokens(WordNetwork(string(df[df.date.==BURNIN_RANGE[1],:body]), EMBEDDING_DIM), ALIGNMENT_TOKENS, aligned=true)
-
-    ks = keys(kw_dict)
-
-    # base_dist = [get_baseline_dists_day(baseline_df[k]) for k in ks]
-
-    analysed = create_processed_df.(values(kw_dict), ks, [ALIGNMENT_TOKENS], [refmatrix], [EMBEDDING_DIM], [[0.0, 10.0]])#[refmatrix], [2], dase_dist)
-
-
-    all_dates = unique(kw_dict[user_agg].date)
-
-    # fill_blank_dates!(df, dates) = df.date=dates
-    # fill_blank_dates!.(analysed,[all_dates])
-
+    # all_dates = unique(kw_dict[user_agg].date)
     big_df = vcat(analysed...)
     big_df.user_ID .= userID
 
-
     sort!(big_df, :date)
 
-
-    load_processed_data(big_df)
+    #load_processed_data(big_df[big_df.date .== today()-Day(1),:])
     return big_df
-
-    #####################################
-    # split_on_day(df) = [df[df[!,:date].==d,:] for d in unique(df[!,:date])]
-
-    # kws = rsplit(df.keywords[1][2:end-1],",")
     
-    # kw_dfs = kw_data_frame.(kws, [df])
-    # kw_dict = Dict(zip(kws, split_on_day.(kw_dfs)))
-
-    # kw_dict[user_agg] = split_on_day(df)
-    
-    # # burnin_ws = get_burnin_wns(userID, (BURNIN_RANGE[1],BURNIN_RANGE[1]))
-    # refmatrix = get_ref_matrix(kw_dict[user_agg][1], ALIGNMENT_TOKENS, EMBEDDING_DIM)
-
-    # ks = keys(kw_dict)
-
-    # # burnin_trace = [burnin_ws[k] for k in ks]
-
-    # analysed = create_processed_df.(values(kw_dict), ks, [ALIGNMENT_TOKENS], [refmatrix], [2], [1:1], [[]])
-
-
-    # all_dates = [unique(df.date)[1] for df in kw_dict[user_agg]]
-
-    # fill_blank_dates!.(analysed,[all_dates])
-
-    # big_df = vcat(analysed...)
-    # big_df.user_ID .= userID
-    # sort!(big_df, :date)
-
-
-    # load_processed_data(big_df)
 end
-# onboard_user(999)
+# onboarded = onboard_user(999, [Date("2023-08-01"),Date("2023-09-01")], false)
+# load_processed_data(onboarded)
+
 

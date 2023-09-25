@@ -1,5 +1,5 @@
 function emb_tok_align_col(raw_df::DataFrame, 
-                           dates::Vector{Date}, 
+                           dates::Vector{Union{Missing, Date}}, 
                            alignment_tokens::Base.AbstractVecOrTuple,
                            refmatrix::Union{Nothing, AbstractArray},
                            emb_dim::Int,

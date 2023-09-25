@@ -1,1 +1,1 @@
-sentiment_col(raw_df::DataFrame, dates::Vector{Date}) = [mean(raw_df[raw_df.date.==d, :sentiment]) for d in dates]
+sentiment_col(raw_df::DataFrame, dates::T) where T<:Vector{Union{Missing, Date}} = [mean(raw_df[raw_df.date.==d, :sentiment]) for d in dates]
