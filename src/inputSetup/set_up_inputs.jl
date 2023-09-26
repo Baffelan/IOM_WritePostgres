@@ -11,7 +11,9 @@ Returns the required inputs for create_processed_df.
 function set_up_inputs(df, burnin, user_agg, ALIGNMENT_TOKENS, calc_distribution::Bool)
     # !Keyword dependent!
     kws = rsplit(df.keywords[1][2:end-1],",")
-    kw_dataframes = kw_data_frame_input.(kws, [df])
+    kw_dataframes = [kw_data_frame_input.(kws, [df]); df]
+
+    kws = vcat(kws..., user_agg)
     base_dist, refmatrix = (0.0, 1.0), Matrix(undef, 0,0)
     if calc_distribution
         base_dist, align_df = base_dist_input(999, burnin, kws, user_agg)
