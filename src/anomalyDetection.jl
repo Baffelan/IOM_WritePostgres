@@ -13,7 +13,6 @@
 # File needs distance dictionaries, dataframe from postgreSQL
 # """
 
-using Dates
 
 
 
@@ -29,8 +28,8 @@ function create_interacting_embedding(df1::DataFrameRow, df2::DataFrameRow)
     int_toks = intersect(keys(toks1), keys(toks2))
     
     emb_dim = max(size(df1.embedding)[2], size(df2.embedding)[2])
-    bigm1 = zeros(Float64, (length(all_toks), emb_dim))
-    bigm2 = zeros(Float64, (length(all_toks), emb_dim))
+    bigm1 = zeros(Float32, (length(all_toks), emb_dim))
+    bigm2 = zeros(Float32, (length(all_toks), emb_dim))
 
     int_locs1 = [toks1[k] for k in int_toks]
     int_locs2 = [toks2[k] for k in int_toks]
@@ -38,6 +37,7 @@ function create_interacting_embedding(df1::DataFrameRow, df2::DataFrameRow)
 
     non_int1 = [toks1[k] for k in setdiff(keys(toks1),int_toks)]
 
+    
     if length(toks1)>0
         bigm1[1:length(int_toks),:].=df1.embedding[int_locs1,:]
         bigm1[length(int_toks)+1:length(int_toks)+length(non_int1),:].=df1.embedding[non_int1,:]

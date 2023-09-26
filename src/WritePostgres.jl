@@ -19,7 +19,7 @@ module WritePostgres
 
     include("process_todays_articles.jl")
     include("ReadWritePostgres.jl")
-    include("onboard_user.jl")
+    include("process_articles.jl")
     include("anomalyDetection.jl")
     include("get_baseline_df.jl") 
 

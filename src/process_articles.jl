@@ -4,7 +4,7 @@ gets the user's information from the forward facing db.
 Collects a large amount of information in the burnin period and processes is to the back facing db.
 
 """
-function onboard_user(userID, day_range::Vector{Date}, calc_distribution::Bool)
+function process_articles(userID, day_range::Vector{Date}, calc_distribution::Bool)
     conf = JSON.parsefile("config.json")
     ALIGNMENT_TOKENS = conf["ALIGNMENT_TOKENS"]
     BURNIN_RANGE = Date.(conf["BURNIN_RANGE"])
@@ -37,7 +37,8 @@ function onboard_user(userID, day_range::Vector{Date}, calc_distribution::Bool)
     return big_df
     
 end
-# onboarded = onboard_user(999, [Date("2023-08-01"),Date("2023-09-01")], false)
+# userID=999
+# onboarded = process_articles(999, [Date("2023-08-01"),Date("2023-09-01")], false)
 # load_processed_data(onboarded)
 
 

@@ -15,7 +15,7 @@ function create_processed_df(raw_df::DataFrame,
                              alignment_tokens::Base.AbstractVecOrTuple, 
                              refmatrix::Union{Nothing, AbstractArray}, 
                              emb_dim::Int, 
-                             base_dist::Base.AbstractVecOrTuple{Float64},
+                             base_dist::Base.AbstractVecOrTuple{AbstractFloat},
                              days::Base.AbstractVecOrTuple{Date})
     println("Analysing keyword: ",kw)
     println(string("DataFrame has ", nrow(raw_df)," rows."))
