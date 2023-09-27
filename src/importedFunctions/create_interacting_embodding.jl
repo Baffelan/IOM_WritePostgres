@@ -57,31 +57,4 @@ end
 
 
 
-"""
-Takes 2 embeddings and calculates the pairwise distances between the rows
-"""
-word_network_self_dist(mat::Matrix; dist_metric=Euclidean()) = pairwise(dist_metric, mat, dims=1)
-
-
-
-
-
-
-"""
-    Finds the anomalous words in a list of WordNetworks.
-    Looks for difference in variance of distances,
-        and difference in means (either same variance or different variance, according to the results of the previous test)
-    
-    To do this a burn in period is used to find a baseline distribution of word distances
-
-    Inputs:
-        WordNetworks (Array{WordNetwork})
-        burn in period (Range{Int})
-    
-    Output:
-        undetermined
-"""
-
-
-
 
