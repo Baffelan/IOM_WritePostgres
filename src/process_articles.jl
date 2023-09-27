@@ -1,4 +1,3 @@
-JSON.parse(ENV["IOMALIGNMENTTOKENS"])
 """
 gets the user's information from the forward facing db.
 Collects a large amount of information in the burnin period and processes is to the back facing db.
