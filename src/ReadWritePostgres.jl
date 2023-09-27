@@ -146,25 +146,3 @@ end
 
 
 
-
-# query_postgres("api.readers", "forward", sorted=false).keywords[1]
-# query_postgres("api.readers", "forward", sorted=false).keywords[]
-
-
-# q = "DELETE FROM api.readers WHERE userid = 999";
-
-
-# c = get_forward_connection()
-
-
-# conn = LibPQ.Connection(c)
-# result = execute(conn, q)
-
-# arts=DataFrame(result)
-
-# close(conn);
-
-# for r in eachrow(arts)
-#     println(r)
-# end
-# unique(arts.column_name)

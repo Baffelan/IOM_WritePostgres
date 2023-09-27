@@ -17,9 +17,9 @@ function create_processed_df(raw_df::DataFrame,
                              emb_dim::Int, 
                              base_dist::Base.AbstractVecOrTuple{AbstractFloat},
                              days::Base.AbstractVecOrTuple{Date})
-    println("Analysing keyword: ",kw)
-    println(string("DataFrame has ", nrow(raw_df)," rows."))
     println("")
+    println("Analysing keyword: ",kw)
+    
     base_mean, base_std = base_dist
     df = DataFrame("date"=>sort(unique(raw_df.date)))
     df[!, :keyword] .= kw

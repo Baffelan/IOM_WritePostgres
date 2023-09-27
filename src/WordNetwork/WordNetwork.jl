@@ -135,15 +135,9 @@ function WordNetwork(text::String, emb_d::Int, filtered_word_counts::Dict{T, Int
     if length(text)>0
         text_graph, token_idx = coocurrence_matrix(text, filtered_word_counts)
         embedding=NamedTuple()
-        # try
-            println("first, this is emb ",emb_d)
-            
-            @time embedding = DotProductGraphs.svd_embedding(text_graph, fast_svd, min(size(text_graph)[1],emb_d))
-        # catch e
-        #     println("second")
-        #     @time embedding = DotProductGraphs.svd_embedding(text_graph, qr_svd, min(size(text_graph)[1],emb_d))
-        # end;
-        
+
+        embedding = DotProductGraphs.svd_embedding(text_graph, fast_svd, min(size(text_graph)[1],emb_d))
+
         alignment_matrix = nothing    
 
         return WordNetwork(text_graph, embedding, token_idx, alignment_matrix)

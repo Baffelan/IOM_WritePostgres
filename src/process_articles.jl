@@ -25,18 +25,14 @@ function process_articles(userID, day_range::Vector{Date}, calc_distribution::Bo
 
     analysed = create_processed_df.(kw_dataframes, kws, [alignment_tokens], [refmatrix], [embedding_dim], base_dist, [day_range]) # indexing on kw_df and kw needs to go
 
-    # all_dates = unique(kw_dict[user_agg].date)
     big_df = vcat(analysed...)
     big_df.user_ID .= userID
 
     sort!(big_df, :date)
 
-    #load_processed_data(big_df[big_df.date .== today()-Day(1),:])
     return big_df
     
 end
-# userID=999
-# onboarded = process_articles(999, [Date("2023-08-01"),Date("2023-09-01")], false)
-# load_processed_data(onboarded)
+
 
 

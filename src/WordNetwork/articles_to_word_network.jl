@@ -25,7 +25,7 @@ This function takes in the output of the postgreSQL query in the form of a dataf
     
 These Word networks contain an alignment (Aᵢ) matrix to align the embeddings (Eᵢ), EᵢAᵢ.
 """
-function articles_to_word_network(articles::DataFrame, alignment_tokens::Base.AbstractVecOrTuple, emb::Int, refmatrix::AbstractArray{Float64}, filtered_word_counts::Dict{T, Int})where{T<:AbstractString}
+function articles_to_word_network(articles::AbstractDataFrame, alignment_tokens::Base.AbstractVecOrTuple, emb::Int, refmatrix::AbstractArray{Float64}, filtered_word_counts::Dict{T, Int})where{T<:AbstractString}
     all_text = join(articles[!, "body"], " ")
 
     ftext = format_text(all_text)
@@ -33,7 +33,7 @@ function articles_to_word_network(articles::DataFrame, alignment_tokens::Base.Ab
     #println("Processing articles from ", articles[1,"date"]," has been completed")
     wn_s = WordNetwork(ftext, emb, filtered_word_counts)
     # refmatrix = get_ref_matrix(wn_s, alignment_tokens)
-    @time aligning_matrix!(wn_s; tokens=alignment_tokens, A=refmatrix)  
+    aligning_matrix!(wn_s; tokens=alignment_tokens, A=refmatrix)  
     
     # dist_dicts = word_embedding_dists.([wn_s[1]], wn_s)
     return wn_s

@@ -1,4 +1,4 @@
-# process_todays_articles(999)
+process_todays_articles(999)
 
 
 """
