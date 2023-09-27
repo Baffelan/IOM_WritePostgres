@@ -1,0 +1,1 @@
+refmatrix_input(align_df, ALIGNMENT_TOKENS) = hcat(sub_index(align_df[1,:embedding]', sub_index(JSON.parse(align_df[1,:token_idx]), ALIGNMENT_TOKENS))...)

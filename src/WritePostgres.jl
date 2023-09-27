@@ -13,29 +13,39 @@ module WritePostgres
     using DataFrames
     using LinearAlgebra
     using Languages
-    using FameSVD
+    using LoopVectorization
+
 
     include("process_todays_articles.jl")
     include("ReadWritePostgres.jl")
-    include("onboard_user.jl")
-    include("anomalyDetection.jl")
-    include("get_baseline_df.jl") 
+    include("process_articles.jl")
 
     include("WordNetwork/WordNetwork.jl")
     include("WordNetwork/articles_to_word_network.jl")
+    include("WordNetwork/fast_svd.jl")
+    
 
-    include("importedFunctions/kw_data_frame.jl")
-    include("importedFunctions/CreateProcessedDf.jl")
+    #include("importedFunctions/kw_data_frame.jl")
     include("importedFunctions/format_text.jl")
+    include("importedFunctions/create_interacting_embodding.jl")
+
 
     ## Create Processed Columnns
-    include("importedFunctions/createProcessedCols/articles_col.jl")
-    include("importedFunctions/createProcessedCols/day_text_col.jl")
-    include("importedFunctions/createProcessedCols/word_count_col.jl")
-    include("importedFunctions/createProcessedCols/sentiment_col.jl")
-    include("importedFunctions/createProcessedCols/emb_tok_align_col.jl")
-    include("importedFunctions/createProcessedCols/anomalous_day_col.jl")
-    include("importedFunctions/createProcessedCols/word_change_col.jl")
+    include("processedDataFrame/CreateProcessedDf.jl")
+
+    include("processedDataFrame/createProcessedCols/articles_col.jl")
+    include("processedDataFrame/createProcessedCols/day_text_col.jl")
+    include("processedDataFrame/createProcessedCols/word_count_col.jl")
+    include("processedDataFrame/createProcessedCols/sentiment_col.jl")
+    include("processedDataFrame/createProcessedCols/emb_tok_align_col.jl")
+    include("processedDataFrame/createProcessedCols/anomalous_day_col.jl")
+    include("processedDataFrame/createProcessedCols/word_change_col.jl")
+
+    ## Get inputs for processed df
+    include("inputSetup/createInputs/base_dist_input.jl")
+    include("inputSetup/createInputs/kw_data_frame_input.jl")
+    include("inputSetup/createInputs/refmatrix_input.jl")
+    include("inputSetup/set_up_inputs.jl")
     
     # Main Functions 
     export process_todays_articles

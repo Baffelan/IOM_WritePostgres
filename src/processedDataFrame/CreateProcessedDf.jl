@@ -10,9 +10,16 @@ Takes a series of arguments:
 
     Returns a DataFrame to be appended to the processed table
 """
-function create_processed_df(raw_df::DataFrame, kw::AbstractString, alignment_tokens::Base.AbstractVecOrTuple, refmatrix::Union{Nothing, AbstractArray}, emb_dim::Int, base_dist::Base.AbstractVecOrTuple{Float64})
+function create_processed_df(raw_df::DataFrame, 
+                             kw::AbstractString, 
+                             alignment_tokens::Base.AbstractVecOrTuple, 
+                             refmatrix::Union{Nothing, AbstractArray}, 
+                             emb_dim::Int, 
+                             base_dist::Base.AbstractVecOrTuple{AbstractFloat},
+                             days::Base.AbstractVecOrTuple{Date})
     println("Analysing keyword: ",kw)
-    
+    println(string("DataFrame has ", nrow(raw_df)," rows."))
+    println("")
     base_mean, base_std = base_dist
     df = DataFrame("date"=>sort(unique(raw_df.date)))
     df[!, :keyword] .= kw
@@ -21,7 +28,7 @@ function create_processed_df(raw_df::DataFrame, kw::AbstractString, alignment_to
     df[!, :word_count] = word_count_col.(df[!,:day_text])
     df[!, :sentiment] = sentiment_col(raw_df, df.date)
 
-    embedding, token_idx, aligning_matrix = emb_tok_align_col(raw_df, df.date, alignment_tokens, refmatrix, emb_dim)
+    embedding, token_idx, aligning_matrix = emb_tok_align_col(raw_df, df.date, alignment_tokens, refmatrix, emb_dim, df.word_count)
 
     df[!, :embedding] = embedding
     df[!, :token_idx] = token_idx
@@ -30,6 +37,6 @@ function create_processed_df(raw_df::DataFrame, kw::AbstractString, alignment_to
     df[!, :anomalous_day] = anomalous_day_col(df, base_mean, base_std)
     df[!, :word_change] = nrow(raw_df)==0 ? [] : word_change_col(df)
 
-    # # net_df[!,:most_shared] = most_shared.(dfs_trace)
+    # net_df[!,:most_shared] = most_shared.(dfs_trace)
     df
 end

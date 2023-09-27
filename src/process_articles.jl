@@ -1,5 +1,3 @@
-# process_todays_articles(999)
-
 
 """
 gets the user's information from the forward facing db.
@@ -24,7 +22,7 @@ function process_articles(userID, day_range::Vector{Date}, calc_distribution::Bo
 
     if !calc_distribution
         base_dist = [base_dist,]
-        refmatrix = diagm(length(ALIGNMENT_TOKENS), EMBEDDING_DIM, ones(Float32, EMBEDDING_DIM))
+        refmatrix = diagm(length(ALIGNMENT_TOKENS), EMBEDDING_DIM, ones(Float64, EMBEDDING_DIM))
     end
 
     analysed = create_processed_df.(kw_dataframes, kws, [ALIGNMENT_TOKENS], [refmatrix], [EMBEDDING_DIM], base_dist, [day_range]) # indexing on kw_df and kw needs to go
@@ -39,10 +37,8 @@ function process_articles(userID, day_range::Vector{Date}, calc_distribution::Bo
     return big_df
     
 end
-userID=999
-day_range = [Date("2023-08-01"),Date("2023-09-01")]
-calc_distribution = false
+# userID=999
 # onboarded = process_articles(999, [Date("2023-08-01"),Date("2023-09-01")], false)
-# load_processed_data(big_df)
+# load_processed_data(onboarded)
 
 
