@@ -10,7 +10,6 @@ function process_articles(userID, day_range::Vector{Date}, calc_distribution::Bo
     # EMBEDDING_DIM = conf["EMBEDDING_DIM"]
 
     user_agg = string(userID,"_aggregated")
-
     old_df = query_postgres("processedarticles", "back", condition=string("WHERE user_ID='",userID,"'", "AND date='",day_range[2],"'"))
     df = query_postgres("raw", "back", condition=string("WHERE lang='eng' ",
                                                         "AND user_ID='",userID,"'",
