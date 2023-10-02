@@ -17,7 +17,7 @@ function create_processed_df(raw_df::DataFrame,
                              emb_dim::Int, 
                              base_dist::Base.AbstractVecOrTuple{AbstractFloat},
                              days::Base.AbstractVecOrTuple{Date},
-                             prev_df::Dataframe)
+                             prev_df::DataFrame)
     println("")
     println("Analysing keyword: ",kw)
     
