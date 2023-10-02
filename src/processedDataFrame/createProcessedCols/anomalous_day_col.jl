@@ -1,13 +1,13 @@
-function anomalous_day_col(df, m, s)
+function anomalous_day_col(df, p_df, m, s)
     anomalies = zeros(Bool, nrow(df))
-    for r in 2:nrow(df)
-        i_mats = create_interacting_embedding(df[r,:],df[r-1,:])
-        self_dists = word_network_self_dist.(i_mats[1:2])
-        day_dist = mean(abs.(self_dists[1].-self_dists[2]))
-        if abs(day_dist-m)>2*s
-            anomalies[r] = true
-        end
+
+    i_mats = create_interacting_embedding(df[1,:],p_df[1,:])
+    self_dists = word_network_self_dist.(i_mats[1:2])
+    day_dist = mean(abs.(self_dists[1].-self_dists[2]))
+    if abs(day_dist-m)>2*s
+        anomalies[1] = true
     end
+
     return anomalies
 
 end

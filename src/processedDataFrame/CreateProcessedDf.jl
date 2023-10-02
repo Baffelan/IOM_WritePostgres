@@ -16,7 +16,8 @@ function create_processed_df(raw_df::DataFrame,
                              refmatrix::Union{Nothing, AbstractArray}, 
                              emb_dim::Int, 
                              base_dist::Base.AbstractVecOrTuple{AbstractFloat},
-                             days::Base.AbstractVecOrTuple{Date})
+                             days::Base.AbstractVecOrTuple{Date},
+                             prev_df::Dataframe)
     println("")
     println("Analysing keyword: ",kw)
     
@@ -34,7 +35,7 @@ function create_processed_df(raw_df::DataFrame,
     df[!, :token_idx] = token_idx
     df[!, :aligning_matrix] = aligning_matrix
 
-    df[!, :anomalous_day] = anomalous_day_col(df, base_mean, base_std)
+    df[!, :anomalous_day] = anomalous_day_col(df, prev_df[prev_df.keyword.==kw,:], base_mean, base_std)
     df[!, :word_change] = nrow(raw_df)==0 ? [] : word_change_col(df)
 
     # net_df[!,:most_shared] = most_shared.(dfs_trace)
