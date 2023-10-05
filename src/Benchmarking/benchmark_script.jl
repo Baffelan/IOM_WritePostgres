@@ -14,11 +14,13 @@ include("noisy_rdpg_dist.jl")
 rdpg = get_base_rdpg(date, kw)
 
 noise_levels = [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
+
 distributions = []
 for noise in noise_levels
        dist = noisy_rdpg_distribution(rdpg, seq_len, noise)
        push!(distributions, dist)
 end
+
 avg = [d[1] for d in distributions]
 e = [d[2] for d in distributions]
 
