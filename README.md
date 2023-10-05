@@ -94,7 +94,7 @@ d_t = mean(||L_{i,\cdot}-L_{k,\cdot}||_2) \quad \forall \space i, k
 $$
 The distribution for these distances then is:
 $$
-mean(d_t),\space std(d_t) \quad \forall \space t
+mean(|d_t-d_{t-1}|),\space std(|d_t-d_{t-1}|) \quad \forall \space t
 $$
 
 ### Noise
@@ -105,7 +105,11 @@ When adding noise to a network, we randomly select $nN$ entries in the network a
 We then randomly select $nN$ different entries in the network and set them to 1, regardless of their previous value.
 
 ### Baseline
-To get a baseline distribution we resample $X$ fifty-one times; this will give us fifty time steps to compare
+At each noise level, we take 51 samples from the RDPG for 50 total distances. 
+
+At every second time step we apply noise to the network $x$. This way we have samples of changing from one distribution (without noise) to another (with noise).
+
+The distribution without noise can be viewed as a baseline.
 
 
 ### Anomaly Detection
