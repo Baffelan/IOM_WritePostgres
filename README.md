@@ -111,6 +111,8 @@ At every second time step we apply noise to the network $x$. This way we have sa
 
 The distribution without noise can be viewed as a baseline.
 
+Once we have a distribution for each noise level, we can see how likely they are to overlap with the baseline.
+
 
 ### Anomaly Detection
 
