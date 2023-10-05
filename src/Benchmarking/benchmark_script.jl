@@ -1,4 +1,7 @@
-DATE=Date("2023-09-01")
+date=Date("2023-10-01") # Date we are taking for our RDPG
+threshold = 3 # Number of std difference from baseline to be qualified as anomally
+noise = 200 # Number of edges set to 0 as well as number of edges set to one
+baseline_samples = 30 # Number of samples in baseline (can take a while to do embedding so don't make too big)
 
 include("utils/get_base_rdpg.jl")
 include("utils/resample_rdpg.jl")
@@ -6,25 +9,20 @@ include("utils/randomise_sample.jl")
 include("utils/get_baseline_dists_benchmark.jl")
 
 
-rdpg = get_base_rdpg()
-baseline = resample_rdpg(rdpg,30)
-test = resample_rdpg(rdpg,5)
-
-test[4] = randomise_sample(test[4], 250)
+rdpg = get_base_rdpg(date)
+baseline = resample_rdpg(rdpg,51)
 
 get_L(E) = E[:L̂]
 func(V) = word_network_self_dist.(get_L.(V))
 
-@time base = DotProductGraphs.svd_embedding.(baseline, [fast_svd], [4])
-base = func(base)
+@time m, s = get_baseline_dists_benchmark(func(DotProductGraphs.svd_embedding.(baseline, [fast_svd], [4])))
 
-@time t = DotProductGraphs.svd_embedding.(test, [fast_svd], [4])
-t = func(t)
+test = resample_rdpg(rdpg,5)
+test[4] = randomise_sample(test[4], noise)
 
-t[4] = word_network_self_dist(DotProductGraphs.svd_embedding(test[4], fast_svd, 4)[:L̂])
+@time t = func(DotProductGraphs.svd_embedding.(test, [fast_svd], [4]))
 
 
-m, s = get_baseline_dists_benchmark(base)
 
 distances = Vector{Float32}()
 for i in 2:length(t)
@@ -32,5 +30,5 @@ for i in 2:length(t)
        push!(distances, dists)
 end
 
-threshold = 3
-abs.(distances.-m).>threshold*s
+threshold = 4
+abs.(distances.-m)./s
