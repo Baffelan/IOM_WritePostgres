@@ -2,7 +2,7 @@ date=Date("2023-10-01") # Date we are taking for our RDPG
 threshold = 3 # Number of std difference from baseline to be qualified as anomally
 noise = 200 # Number of edges set to 0 as well as number of edges set to one
 seq_len = 51 # Number of samples in baseline (can take a while to do embedding so don't make too big)
-kw = "musk"
+kw = "facebook"
 
 include("utils/get_base_rdpg.jl")
 include("utils/resample_rdpg.jl")
