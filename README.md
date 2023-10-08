@@ -90,30 +90,40 @@ $$
 Then, for each pair of times $T+l, \, T+l-1$, we can calculate $D^{T+l}$ and check whether it lies in the MOE of $E_D, \, V_D$.
 
 ## Benchmarking
+To create a benchmark for this algorithm, we generate a set of synthetic data from an observed network, and test the algorithm's ability to detect when the synthetic data has been randomised.
+
+In this way we hope that the synthetic data is created from the same distribution as the real world process that created the original network.
+
+
 ### Sampling
+To create our synthetic data, we make exploit a useful feature of the SVD is that we can readily construct a Random Dot Product Graph (RDPG). To do this we take
+$$
+X = L^t {R^t}' 
+$$
+
 $$
 X=\left[\begin{array}{cccc}
-    p_{1,1} & p_{1,2} & \dots     & p_{1,n} \\
+    p_{1,1} & p_{1,2} & \dots     & p_{1,K} \\
     p_{2,1} & \ddots  &           & \vdots \\
-    \vdots  &         &           &  p_{n-1,n}\\ 
-    p_{n,1} & \dots   & p_{n,n-1} & p_{n,n}
+    \vdots  &         &           &  p_{K-1,K}\\ 
+    p_{K,1} & \dots   & p_{K,K-1} & p_{K,K}
     \end{array}\right]
 $$
 
 $$
-p_{i,j} = \mathrm{P}(i\rightarrow j)
+p_{i,k} = \mathrm{P}(w^t_i\rightarrow w^t_k)
 $$
 
 A sample of $X$ can be readily found by running a Bernoulli trial on each entry of $X$ to find $x$.
 
 $$
-x_{i,j} \sim Bernoulli(p_{i,j})
+x_{i,k} \sim Bernoulli(p_{i,k})
 $$
 
 
 
-### Noise
-Noise $(n)$ is denoted as a percentage of the number of nodes in the network $(N)$ (rounded when necessary). 
+### Anomalies
+To create anomalies in the synthetic data, we create a function XXXXX to randomly select a proportion ($e$) of the number of nodes in the network $(N)$ (rounded when necessary), and rewrite them. 
 
 #### Set Value
 When adding noise to a network, we randomly select $nN$ entries in the network and set them to 0, regardless of their previous value.
