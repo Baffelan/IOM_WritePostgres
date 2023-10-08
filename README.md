@@ -87,7 +87,7 @@ x_{i,j} \sim Bernoulli(p_{i,j})
 $$
 
 ### What are we looking for?
-the anomaly detection algorithm looks to find large changes between networks from one time step to the next. To do this we TODO...
+the anomaly detection algorithm looks to find large changes between networks from one time step to the next. To do this we take the Singular Value Decomposition (SVD) of some sequence of RDPG samples $x_t, \space t\in 1,...,T$.
 $$
 L,R = SVD(x_t) \\
 d_t = mean(||L_{i,\cdot}-L_{k,\cdot}||_2) \quad \forall \space i, k
@@ -100,9 +100,14 @@ $$
 ### Noise
 Noise $(n)$ is denoted as a percentage of the number of nodes in the network $(N)$ (rounded when necessary). 
 
+#### Set Value
 When adding noise to a network, we randomly select $nN$ entries in the network and set them to 0, regardless of their previous value.
 
 We then randomly select $nN$ different entries in the network and set them to 1, regardless of their previous value.
+
+#### Swap Value
+For this type of randomization, we select vertices in a similar way to the above, but instead of setting the entry $x_{i,j}$ to a specific value, we swap the value $x_{i,j}:=!x_{i,j}$.
+
 
 ### Baseline
 At each noise level, we take 51 samples from the RDPG for 50 total distances. 
