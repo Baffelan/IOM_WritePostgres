@@ -1,8 +1,7 @@
 date=Date("2023-10-01") # Date we are taking for our RDPG
 threshold = 3 # Number of std difference from baseline to be qualified as anomally
-noise = 200 # Number of edges set to 0 as well as number of edges set to one
 seq_len = 51 # Number of samples in baseline (can take a while to do embedding so don't make too big)
-kw = "facebook"
+kw = "musk"
 
 include("utils/get_base_rdpg.jl")
 include("utils/resample_rdpg.jl")
@@ -13,7 +12,7 @@ include("noisy_rdpg_dist.jl")
 
 rdpg = get_base_rdpg(date, kw)
 
-noise_levels = [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
+noise_levels = [0, 0.01, 0.02, 0.03, 0.04, 0.05]#, 0.3]
 
 distributions = []
 for noise in noise_levels
@@ -46,7 +45,31 @@ layout = Layout(
 PlotlyJS.plot(trace, layout)
 
 # baseline = resample_rdpg(rdpg,51)
+graph1 = resample_rdpg(rdpg, seq_len)
+ngraph1 = copy.(graph1[:])
+make_noisy = false
+for i in eachindex(ngraph1)
+    if make_noisy
+        ngraph1[i] = randomise_sample_setvalue(ngraph1[i], noise_levels[4])
+    end
+    make_noisy = !make_noisy
+end
 
+graph2 = resample_rdpg(rdpg, seq_len)
+ngraph2 = copy.(graph2[:])
+make_noisy = false
+for i in eachindex(ngraph2)
+    if make_noisy
+        ngraph2[i] = randomise_sample_switchvalue(ngraph2[i], noise_levels[4])
+    end
+    make_noisy = !make_noisy
+end
+
+t=2
+sum(abs.(ngraph1[t].-graph1[t]))
+sum(abs.(ngraph2[t].-graph2[t]))
+convert(Int, round(noise_levels[4]*size(graph2[2])[1]))
+5136/39
 # get_L(E) = E[:L̂]
 # func(V) = word_network_self_dist.(get_L.(V))
 
