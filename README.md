@@ -64,6 +64,30 @@ end
 ```
 Note that the only function exported by MakeWebJSON is create_web_JSON.
 
+## Problem
+Given a temporal sequence of text ($W^t, \; \forall \; t \in 1\dots T$), we wish to identify anomalous days.
+
+To do this, we create a relational network between the words ($w_1\dots w_K$) in $W^t$.
+
+We define an edge at time $t$ ($w^t_{i} \leftrightarrow w^t_k$), to exist if $w_i, \,w_k$ occur together in at least one sentence in $W^t$.
+
+We then decompose the matrix $W^t$ using a Singular Value Decomposition (SVD) to get the matrices $L^t, \, R^t$.
+
+### What are we looking for?
+We focus on detecting anomalies in the matrix $L^t$
+$$
+d^t = E(||L^t_{i,\cdot}-L^t_{k,\cdot}||_2) \quad \forall \space i, k
+$$
+The change in average distances from $t-1$ to $t$ is then
+$$
+D^t=||d^t-d^{t-1}||
+$$
+The distribution for these distances then is:
+$$
+E_D=E(D^t),\space V_D = V(D^t) \quad \forall \space t
+$$
+
+Then, for each pair of times $T+l, \, T+l-1$, we can calculate $D^{T+l}$ and check whether it lies in the MOE of $E_D, \, V_D$.
 
 ## Benchmarking
 ### Sampling
@@ -86,16 +110,7 @@ $$
 x_{i,j} \sim Bernoulli(p_{i,j})
 $$
 
-### What are we looking for?
-the anomaly detection algorithm looks to find large changes between networks from one time step to the next. To do this we take the Singular Value Decomposition (SVD) of some sequence of RDPG samples $x_t, \space t\in 1,...,T$.
-$$
-L,R = SVD(x_t) \\
-d_t = mean(||L_{i,\cdot}-L_{k,\cdot}||_2) \quad \forall \space i, k
-$$
-The distribution for these distances then is:
-$$
-mean(|d_t-d_{t-1}|),\space std(|d_t-d_{t-1}|) \quad \forall \space t
-$$
+
 
 ### Noise
 Noise $(n)$ is denoted as a percentage of the number of nodes in the network $(N)$ (rounded when necessary). 
