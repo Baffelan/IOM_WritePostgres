@@ -1,6 +1,6 @@
-using WritePostgres
+using IOM_WritePostgres
 using Test
 
-@testset "WritePostgres.jl" begin
+@testset "IOM_WritePostgres.jl" begin
     # Write your tests here.
 end
