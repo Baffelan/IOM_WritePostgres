@@ -1,4 +1,4 @@
-module WritePostgres
+module IOM_WritePostgres
 
     using LibPQ
     using Tables
