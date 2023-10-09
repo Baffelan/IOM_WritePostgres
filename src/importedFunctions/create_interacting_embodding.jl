@@ -39,7 +39,6 @@ function create_interacting_embedding(df1::DataFrameRow, df2::DataFrameRow; tran
 
     non_int1 = [toks1[k] for k in setdiff(keys(toks1),int_toks)]
 
-    
     if length(toks1)>0
         bigm1[1:length(int_toks),:].=emb1[int_locs1,:]
         bigm1[length(int_toks)+1:length(int_toks)+length(non_int1),:].=emb1[non_int1,:]
@@ -47,10 +46,9 @@ function create_interacting_embedding(df1::DataFrameRow, df2::DataFrameRow; tran
     
 
     non_int2 = [toks2[k] for k in setdiff(keys(toks2), int_toks)]
-
     if length(toks2)>0
-    bigm2[1:length(int_toks),:].=emb2[int_locs2,:]
-    bigm2[length(int_toks)+1+length(non_int1):end,:].=emb2[non_int2,:]
+        bigm2[1:length(int_toks),:].=emb2[int_locs2,:]
+        bigm2[length(int_toks)+1+length(non_int1):end,:].=emb2[non_int2,:]
     end
 
     return bigm1, bigm2, vcat([k for k in int_toks], [k for k in setdiff(keys(toks1),int_toks)], [k for k in setdiff(keys(toks2), int_toks)])
