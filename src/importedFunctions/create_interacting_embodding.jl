@@ -1,23 +1,7 @@
-# """
-# The aim of this file is to return a json file with information about outliers that have been identified from the collected data
-
-# Rough Steps:
-#     postgreSQLquery to get data from server
-
-#     textGraph (should rename) to transform data to embedding
-
-#     Detect anomalies
-
-#     build json
-
-# File needs distance dictionaries, dataframe from postgreSQL
-# """
-
-
-
-
 """
-Aligns the indeces of each 
+    Returns 2 matrices with the same token_idx. That is row 1 in each matrix refers to the same word; if a word occurs in one matrix but not the other, it is set to 0 in the matrix it does not occur in.
+    
+    Additionally a vector of tokens is returned where the index in the vector describe the token_idx of the matrices.
 """
 function create_interacting_embedding(df1::DataFrameRow, df2::DataFrameRow; transpose_1::Bool=false, transpose_2::Bool=false)
     emb1 = transpose_1 ? df1.embedding' : df1.embedding
