@@ -14,7 +14,12 @@ W = IOM_WritePostgres.WordNetwork(zeros(Float32, (1,1)), (L̂=embs[1],R̂=embs[2
 transformer = [0.0 1.0; 1.0 0.0]
 ref = embs[1]*transformer
 
+
+# all_characters = "`1234567890[]',.pyfgcrl/=aoeuidhtns-;qjkxbmwvz~!@#\$%^&*(){}<>PYFGCRL?+AOEUIDHTNS_:QJKXBMWVZ\"\'\n"
+# IOM_WritePostgres.format_text(all_characters)
+
 @testset "IOM_WritePostgres.jl" begin
     @test interacting_targets == IOM_WritePostgres.create_interacting_embedding(df[1,:], df[2,:])
     @test isapprox(transformer, IOM_WritePostgres.aligning_matrix!(W, A=ref, tokens=collect(keys(idxs[1]))), rtol=1e-5)
 end
+

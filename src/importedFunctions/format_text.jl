@@ -13,11 +13,22 @@ function format_text(text::String)
     
     t = replace(t, ","=>"")
     t = replace(t, "\""=>"")
+    t = replace(t, "'"=>"")
+
     t = replace(t, "\n"=>" ")
     t = replace(t, ":"=>" ")
     t = replace(t, "@"=>"")
+    t = replace(t, ";"=>" ")
+    t = replace(t, "/"=>" ")
+    t = replace(t, "~"=>" ")
+    t = replace(t, " -"=>" ")
+    t = replace(t, "- "=>" ")
+
+
     t = replace(t, "?"=>".")
     t = replace(t, "!"=>".")
+
+
     return t
 end
 
