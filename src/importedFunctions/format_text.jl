@@ -1,9 +1,20 @@
 """
-A very rough processing of the text to reduce the occurences of cases such as "will" and "will," being viewed as different words.
+A very rough processing of the text to remove punctuation and extra characters. This reduces the occurences of cases such as "will" and "will," being viewed as different words.
 
-More sophisticated processing is readily possible. A potential example of how in (1), where the Unicode category_code can be used to remove particular types of characters.
+# Arguments
+- `text::String`: the text being processed.
 
-returns formated text.
+# Examples
+```jldoctest
+julia> format_text("word, word")
+"word word"
+
+julia> format_text("word-word")
+"word-word"
+
+julia> format_text("word- word")
+"word word"
+```
 """
 function format_text(text::String)
     t = lowercase(text)
