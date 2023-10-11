@@ -1,7 +1,12 @@
 """
-    Returns 2 matrices with the same token_idx. That is row 1 in each matrix refers to the same word; if a word occurs in one matrix but not the other, it is set to 0 in the matrix it does not occur in.
-    
-    Additionally a vector of tokens is returned where the index in the vector describe the token_idx of the matrices.
+Returns 2 matrices with the same token_idx. That is row 1 in each matrix refers to the same word; if a word occurs in one matrix but not the other, it is set to 0 in the matrix it does not occur in.
+Additionally a vector of tokens is returned where the index in the vector describe the token_idx of the matrices.
+
+## TODO:
+    update the arguments to take the form:
+    - `embeddings::AbstractVector{AbstractMatrix}`: A vector of length 2 of network embeddings.
+    - `token_idxs::AbstractVector{Dict}`: A vector of length 2 of associated token=>idx relations with the network embeddings.
+    - `transpose::AbstractVector{Bool}=[false, false]`: A vector of length 2 which indicates if either embedding needs to be transposed.
 """
 function create_interacting_embedding(df1::DataFrameRow, df2::DataFrameRow; transpose_1::Bool=false, transpose_2::Bool=false)
     emb1 = transpose_1 ? df1.embedding' : df1.embedding
