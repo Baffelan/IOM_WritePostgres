@@ -1,5 +1,10 @@
-function mean_word_distance_seq(embeddings)
-    # burnin_dict = NamedTuple{String, AbstractArray}(x̄=>0.0, σ=>0.0)
+"""
+Calculates the average word distance for each day and returns a vector sequence of average daily distances.
+    
+# Arguments
+- `embeddings::Vector{AbstractMatrix}`: vector of embeddings.
+"""
+function mean_word_distance_seq(embeddings::Vector{AbstractMatrix})
     self_dists = word_network_self_dist.(embeddings)
     distances = Vector{Float32}()
     for i in 2:length(self_dists)
