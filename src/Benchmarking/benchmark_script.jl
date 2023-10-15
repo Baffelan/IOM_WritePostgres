@@ -4,7 +4,7 @@ seq_len = 51 # Number of samples in baseline (can take a while to do embedding s
 kw = "musk"
 
 include("utils/get_base_rdpg.jl")
-include("utils/resample_rdpg.jl")
+include("utils/sample_rdpg.jl")
 include("utils/randomise_sample.jl")
 include("utils/mean_word_distance_seq.jl")
 include("utils/embedding.jl")

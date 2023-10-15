@@ -14,6 +14,7 @@ module IOM_WritePostgres
     using LinearAlgebra
     using Languages
     using LoopVectorization
+    using Distributions
 
 
     include("process_todays_articles.jl")
