@@ -45,7 +45,7 @@ module IOM_WritePostgres
     ## Get inputs for processed df
     include("inputSetup/createInputs/base_dist_input.jl")
     include("inputSetup/createInputs/kw_data_frame_input.jl")
-    include("inputSetup/createInputs/refmatrix_input.jl")
+    include("inputSetup/createInputs/matrix_from_tokens_input.jl")
     include("inputSetup/set_up_inputs.jl")
     
     # Main Functions 

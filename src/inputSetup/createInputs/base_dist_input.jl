@@ -1,14 +1,27 @@
 """
 gets a baseline distribution of movements (mean, std) of word movement from one day to the next.
+
+# Arguments
+- `userID::Int`: The ID of the user being processed.
+- `burnin::Tuple{Date, Date}`: A date range for which the baseline distribution is found.
+- `kws::AbstractVecOrTuple{String}`: The keywords for which a baseline will be found.
+- `user_agg::String`: The keyword identifying an aggregate of all articles ("[userID]_aggregated").
 """
-function base_dist_input(userID::Int, burnin::Vector{Date}, kws, user_agg)
+function base_dist_input(userID::Int, burnin::Vector{Date}, kws::AbstractVecOrTuple{String}, user_agg)
     baseline_df = get_baseline_df(userID, (burnin[1],burnin[2]))
     base_dict = Dict([df.keyword[1]=>df for df in baseline_df]...)
-    base_dist = [get_baseline_dists_day(base_dict[k]) for k in kws if k in keys(base_dict)]
+    base_dist = [get_baseline_dist(base_dict[k]) for k in kws if k in keys(base_dict)]
     align_df = base_dict[user_agg]
     return base_dist, align_df
 end
 
+"""
+Collects processed articles to be used for establishing a baseline distribution. These articles are then broken down by keyword and returned as a vector of DataFrames.
+
+# Arguments
+- `userID::Int`: The ID of the user being processed.
+- `burnin::Tuple{Date, Date}`: A date range for which the baseline distribution is found.
+"""
 function get_baseline_df(userID::Int, burnin::Tuple{Date, Date})
     df = query_postgres("processedarticles", "back", condition = string("WHERE user_ID='",userID,"'",
                                                                         "AND date<='",burnin[2],"' ",
@@ -24,7 +37,13 @@ function get_baseline_df(userID::Int, burnin::Tuple{Date, Date})
     kw_dfs = [df[df.keyword.==w,:] for w in all_kws]
 end
 
-function get_baseline_dists_day(base_df::DataFrame)
+"""
+Calculates a baseline distribution for a given DataFrame from `processedarticles` table.
+
+# Arguments
+- `base_df::DataFrame`: A data frame from the 'processedarticles` table with at least 2 rows.
+"""
+function get_baseline_dist(base_df::DataFrame)
     # burnin_dict = NamedTuple{String, AbstractArray}(x̄=>0.0, σ=>0.0)
     println(unique(base_df.keyword))
     distances = Vector{Float32}()

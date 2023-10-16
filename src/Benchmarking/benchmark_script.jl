@@ -12,7 +12,7 @@ include("noisy_rdpg_dist.jl")
 
 rdpg = get_base_rdpg(date, kw)
 
-noise_levels = [0, 0.01, 0.02, 0.03, 0.04, 0.05]#, 0.3]
+noise_levels = [0, 0.01, 0.02, 0.03, 0.04, 0.05]
 
 distributions = []
 for noise in noise_levels
