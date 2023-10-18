@@ -1,4 +1,13 @@
-function anomalous_day_col(df, p_df, m, s)
+"""
+Checks if the change in average word distance between `today_df` and `previous_df` is anomalous.
+    
+# Arguments
+- `today_df::DataFrame`: Semi-processed data frame containing information about today's articles.
+- `previous_df::DataFrame:` Data frame from `processedarticles` containing yesterdays information.
+- `m::Float64`: Mean of the baseline distribution.
+- `s::Float64`: Standard deviation of the baseline distribution.
+"""
+function anomalous_day_col(today_df::DataFrame, previous_df::DataFrame, m::Float64, s::Float64)
     anomalies = zeros(Bool, nrow(df))
     if nrow(p_df)>0
         i_mats = create_interacting_embedding(df[1,:],p_df[1,:], transpose_2=true)
@@ -14,7 +23,11 @@ function anomalous_day_col(df, p_df, m, s)
 end
 
 """
-Takes 2 embeddings and calculates the pairwise distances between the rows
+Calculates the distance matrix between all rows of the matrix `mat`.
+
+# Arguments
+- `mat::Matrix`
+- `dist_metric::Function`: Method to calculate the row distances of `mat`.
 """
 word_network_self_dist(mat::Matrix; dist_metric=Euclidean()) = pairwise(dist_metric, mat, dims=1)
 

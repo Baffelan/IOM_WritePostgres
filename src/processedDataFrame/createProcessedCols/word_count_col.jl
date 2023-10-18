@@ -1,7 +1,10 @@
 
 """
 Produces a dictionary of words->number of occurances in a given text.
-Used for making the word cloud.
+Used for making the `word_cloud` column of the `processedarticles` table.
+
+# Arguments
+- `text::String`
 """
 function word_count_col(text::AbstractString)
     # sw = stopwords(Languages.English())
