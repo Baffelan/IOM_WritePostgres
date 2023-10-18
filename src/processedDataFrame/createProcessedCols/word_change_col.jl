@@ -1,3 +1,9 @@
+"""
+Calculates how much each word has moved between 1 day and the next.
+
+TODO:
+Integrate this function into anomalous_day_col, as much of the functionality is similar. anomalous_day_col has been updated to be more readable and efficient and so should be used as the foundation of the new code.
+"""
 function word_change_col(df)
     change_dicts = [Dict()]
     for r in 2:nrow(df)
