@@ -1,7 +1,7 @@
 name = "IOM_WritePostgres"
 uuid = "59f707cc-cce7-40fd-9617-9e0c6ce07bf2"
 authors = ["Connor Smith"]
-version = "1.0.3-DEV"
+version = "1.0.4-DEV"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"

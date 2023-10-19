@@ -8,9 +8,9 @@ Checks if the change in average word distance between `today_df` and `previous_d
 - `s::Float64`: Standard deviation of the baseline distribution.
 """
 function anomalous_day_col(today_df::DataFrame, previous_df::DataFrame, m::Float64, s::Float64)
-    anomalies = zeros(Bool, nrow(df))
-    if nrow(p_df)>0
-        i_mats = create_interacting_embedding(df[1,:],p_df[1,:], transpose_2=true)
+    anomalies = zeros(Bool, nrow(today_df))
+    if nrow(previous_df)>0
+        i_mats = create_interacting_embedding(today_df[1,:],previous_df[1,:], transpose_2=true)
         self_dists = word_network_self_dist.(i_mats[1:2])
         day_dist = mean(abs.(self_dists[1].-self_dists[2]))
         if abs(day_dist-m)>2*s
