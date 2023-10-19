@@ -40,7 +40,7 @@ end
 helper function for parsing julia array to postgres format
 """
 parse_array(A::AbstractArray) = replace(replace(JSON.json(A),"["=>"{"),"]"=>"}")
-parse_array(A::Nothing) = []
+parse_array(A::Nothing) = "{}"
 
 
 """
