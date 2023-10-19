@@ -7,7 +7,7 @@ gets a baseline distribution of movements (mean, std) of word movement from one 
 - `kws::Tuple{String}`: The keywords for which a baseline will be found.
 - `user_agg::String`: The keyword identifying an aggregate of all articles ("[userID]_aggregated").
 """
-function base_dist_input(userID::Int, burnin::Vector, kws::Tuple{AbstractString}, user_agg)
+function base_dist_input(userID::Int, burnin::Vector, kws::Vector{AbstractString}, user_agg)
     baseline_df = get_baseline_df(userID, (burnin[1],burnin[2]))
     base_dict = Dict([df.keyword[1]=>df for df in baseline_df]...)
     base_dist = [get_baseline_dist(base_dict[k]) for k in kws if k in keys(base_dict)]
