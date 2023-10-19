@@ -136,7 +136,7 @@ function WordNetwork(text::String, emb_d::Int, filtered_word_counts::Dict{T, Int
         text_graph, token_idx = coocurrence_matrix(text, filtered_word_counts)
         embedding=NamedTuple()
 
-        embedding = DotProductGraphs.svd_embedding(text_graph, fast_svd, min(size(text_graph)[1],emb_d))
+        embedding = DotProductGraphs.svd_embedding(text_graph, min(size(text_graph)[1],emb_d), fast_svd)
 
         alignment_matrix = nothing    
 
