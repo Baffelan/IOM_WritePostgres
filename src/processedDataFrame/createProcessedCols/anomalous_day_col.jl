@@ -7,7 +7,7 @@ Checks if the change in average word distance between `today_df` and `previous_d
 - `m::Float64`: Mean of the baseline distribution.
 - `s::Float64`: Standard deviation of the baseline distribution.
 """
-function anomalous_day_col(today_df::DataFrame, previous_df::DataFrame, m::Float64, s::Float64)
+function anomalous_day_col(today_df::DataFrame, previous_df::DataFrame, m::AbstractFloat, s::AbstractFloat)
     anomalies = zeros(Bool, nrow(today_df))
     if nrow(previous_df)>0
         i_mats = create_interacting_embedding(today_df[1,:],previous_df[1,:], transpose_2=true)
