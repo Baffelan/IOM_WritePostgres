@@ -47,6 +47,7 @@ parse_array(A::Nothing) = []
 Loads data into the table with the schema from ProcessedArticles in the IOM_MakePostgresTables
 """
 function load_processed_data(net_df)
+    println(net_df.aligning_matrix)
     conn = LibPQ.Connection(get_back_connection())
     execute(conn, "BEGIN;")
     
