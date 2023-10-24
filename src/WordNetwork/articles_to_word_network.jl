@@ -1,23 +1,14 @@
+# """
+# This function will return a reference matrix from the given embedding and alignment tokens.
+# """
+# function get_ref_matrix(article::DataFrame, tokens::Base.AbstractVecOrTuple, emb::Int; which_mat::Symbol=:L̂)
+#     all_text = join(article[!, "body"], " ")
 
-# using GraphMakie , GLMakie
-
-# PATH = "TestData/"
-
-# fs = readdir(PATH)
-
-
-# f = JSON.parsefile.(string.(PATH, fs))
-"""
-This function will return a reference matrix from the given embedding and alignment tokens.
-"""
-function get_ref_matrix(article::DataFrame, tokens::Base.AbstractVecOrTuple, emb::Int; which_mat::Symbol=:L̂)
-    all_text = join(article[!, "body"], " ")
-
-    ftext = format_text(all_text)
+#     ftext = format_text(all_text)
     
-    wn = WordNetwork(ftext, emb)
-    subembedding_from_tokens(wn, tokens, which_mat=which_mat)
-end
+#     wn = WordNetwork(ftext, emb)
+#     subembedding_from_tokens(wn, tokens, which_mat=which_mat)
+# end
 
 
 """
