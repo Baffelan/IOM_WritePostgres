@@ -41,9 +41,13 @@ Base.show(io::IO, ::MIME"text/plain", f::WordNetwork) = @printf(io, "WordNetwork
 #     WordNetwork(raw, text_graph, embedding, token_idx, alignment_matrix)
 # end
 """
-    Generates and returns both the coocurrence matrix for a piece of formatted text (ideally all lowercase, no numbers, and the only punctuation is a fullstop) 
-    unit is the character upon which to split the string for defining nodes.
-    coocur is the character to split the string to define a relation.
+Generates and returns both the coocurrence matrix for a piece of formatted text (ideally all lowercase, no numbers, and the only punctuation is a fullstop), and the  token=>token_idx dictionary for that coocurence matrix.
+
+# Arguments
+- 'text::String': The string (usually preprocessed in some way) that will be used to create a coocurrence matrix.
+- 'filtered_word_counts::Dict{T, Int} where {T<:AbstractString}': A dictionary from token=>token_idx wich contains tokens that will be used in the network (tokens that have been used frequently enough).
+- 'unit::AbstractChar': The character which splits the 'text' to define nodes.
+- 'coocur::AbstractChar': The character which splits the 'text' to define a relation.
 """
 function coocurrence_matrix(text::String, filtered_word_counts::Dict{T, Int}; unit::AbstractChar=' ', coocur::AbstractChar='.')where{T<:AbstractString}
     words = rsplit(replace(text, coocur=>" "), unit)
@@ -111,32 +115,21 @@ function coocurrence_matrix_2(text::String, filtered_word_counts::Dict{T, Int}; 
     return word_sent_mat, token_idx
 end
 
-function qr_svd(Mat::T, dim::O = nothing) where {T <: AbstractMatrix, O <: Union{Nothing,<:Int,Function}}
 
-    L,Σ,Rt = svd(Mat, alg=LinearAlgebra.QRIteration())
+"""
+Creates a 'WordNetwork'.
 
-    d = isnothing(dim) ? d_elbow(Σ) :
-        isinteger(dim) ? dim :
-        dim(Mat)
-
-    L = L[:,1:d]
-    Σ = Σ[1:d]
-    Rt = Rt[:,1:d]
-    return L, Σ, Rt
-  
-end
-
-# function fast_svd(A, d)
-#  L, Σ, R = FameSVD.fsvd(A)
-#  return(L[:,1:d], Σ[1:d], R[:,1:d])
-# end
-
-function WordNetwork(text::String, emb_d::Int, filtered_word_counts::Dict{T, Int}) where{T<:AbstractString}
+# Arguments
+- 'text::String': The string (usually preprocessed in some way) that will be used to create a coocurrence matrix.
+- 'emb_dim::Int': The dimension required for the embedding.
+- 'filtered_word_counts::Dict{T, Int} where {T<:AbstractString}': A dictionary from token=>token_idx wich contains tokens that will be used in the network (tokens that have been used frequently enough).
+"""
+function WordNetwork(text::String, emb_dim::Int, filtered_word_counts::Dict{T, Int}) where{T<:AbstractString}
     if length(text)>0
         text_graph, token_idx = coocurrence_matrix(text, filtered_word_counts)
         embedding=NamedTuple()
 
-        embedding = DotProductGraphs.svd_embedding(text_graph, min(size(text_graph)[1],emb_d), fast_svd)
+        embedding = DotProductGraphs.svd_embedding(text_graph, min(size(text_graph)[1],emb_dim), fast_svd)
 
         alignment_matrix = nothing    
 
@@ -148,64 +141,96 @@ function WordNetwork(text::String, emb_d::Int, filtered_word_counts::Dict{T, Int
 end
 
 
-"""
-    Calculates the direction vectors from WN1, to WN2.
-    This is done for every word that the two WordNetworks have in common.
-    This will be done for matrices that have been alligned, if an aligning matrix exists.
-"""
-function word_embedding_dists(dt1::Dict{String, Int}, E1::Matrix{Float32}, dt2::Dict{String, Int}, E2::Matrix{Float32})
-    ints = intersect(keys(dt1), keys(dt2))
-    dists=[]
-    for int in ints
-        i1=dt1[int]
-        i2=dt2[int]
-        push!(dists, E2[i2,:].-E1[i1,:])
-    end
-    return Dict(zip(ints, dists))
-end
+# """
+#     Calculates the direction vectors from 'E1' to 'E2', using 'dt1' and 'dt2' to find the overlap between the two matricess.
+#     This is done for every word that the two WordNetworks have in common.
+#     This will be done for matrices that have been alligned, if an aligning matrix exists.
 
-function word_embedding_dists(wn1::WordNetwork, wn2::WordNetwork)
-    if (isnothing(wn1.aligning_matrix) || isnothing(wn2.aligning_matrix))
-        return word_embedding_dists(wn1.token_idx, wn1.embedding[:L̂], wn2.token_idx, wn2.embedding[:L̂])
-    else
-        E1 = wn1.embedding[:L̂]*wn1.aligning_matrix
-        E2 = wn2.embedding[:L̂]*wn2.aligning_matrix
-        return word_embedding_dists(wn1.token_idx, E1, wn2.token_idx, E2)
-    end
+# # Arguments
+# - 'dt1::Dict{String, Int}': token=>token_idx dictionary for 'E1'.
+# - 'E1::Matrix{Float32}': First embedding.
+# - 'dt2::Dict{String, Int}': token=>token_idx dictionary for 'E2'.  
+# - 'E2::Matrix{Float32}': Second embedding.
+# """
+# function word_embedding_dists(dt1::Dict{String, Int}, E1::Matrix{Float32}, dt2::Dict{String, Int}, E2::Matrix{Float32})
+#     ints = intersect(keys(dt1), keys(dt2))
+#     dists=[]
+#     for int in ints
+#         i1=dt1[int]
+#         i2=dt2[int]
+#         push!(dists, E2[i2,:].-E1[i1,:])
+#     end
+#     return Dict(zip(ints, dists))
+# end
+
+# """
+#     Calculates the direction vectors from WN1, to WN2.
+#     This is done for every word that the two WordNetworks have in common.
+#     This will be done for matrices that have been alligned, if an aligning matrix exists.
+
+
+# """
+# function word_embedding_dists(wn1::WordNetwork, wn2::WordNetwork)
+#     if (isnothing(wn1.aligning_matrix) || isnothing(wn2.aligning_matrix))
+#         return word_embedding_dists(wn1.token_idx, wn1.embedding[:L̂], wn2.token_idx, wn2.embedding[:L̂])
+#     else
+#         E1 = wn1.embedding[:L̂]*wn1.aligning_matrix
+#         E2 = wn2.embedding[:L̂]*wn2.aligning_matrix
+#         return word_embedding_dists(wn1.token_idx, E1, wn2.token_idx, E2)
+#     end
     
-end
+# end
 
 
 sub_index(l::Dict, is) = map(x->l[x], is)
 sub_index(l::AbstractArray, is) = map(x->l[x,:], is)
 
 """
-    A function that returns the submatrix associated with the tokens in the ALIGNMENT Tuple
-    this matrix is used to align the larger embedding matrix.
+    A function that returns the submatrix associated with the tokens in the 'tokens' Tuple
+    This matrix is used to align the larger embedding matrix.
+
+# Arguments
+- 'wn::WordNetwork': WordNetwork.
+- 'tokens::Base.AbstractVecOrTuple': Tokens to find the subembedding of.
+- 'which_mat::Symbol': Which matrix to extract the subembedding of (:L̂, :R̂).
+- 'aligned::Bool': Whether the returned subembedding should be aligned or not.
 """
 function subembedding_from_tokens(wn::WordNetwork, tokens::Base.AbstractVecOrTuple; which_mat::Symbol=:L̂, aligned::Bool=false)
     alignment_locs = sub_index(wn.token_idx, tokens)
     if (aligned && !(isnothing(wn.aligning_matrix)))
-        return hcat(sub_index(wn.embedding[:L̂]*wn.aligning_matrix, alignment_locs)...)'
+        return hcat(sub_index(wn.embedding[which_mat]*wn.aligning_matrix, alignment_locs)...)'
     else
-        return hcat(sub_index(wn.embedding[:L̂], alignment_locs)...)'
+        return hcat(sub_index(wn.embedding[which_mat], alignment_locs)...)'
     end
     
 end
 
+"""
+    A function that returns the submatrix associated with the tokens in the 'tokens' Tuple; this function allows for the possibility that not all 'tokens' are present in 'wn'. Any tokens that are not present will be ignored.
+    This matrix is used to align the larger embedding matrix.
 
+# Arguments
+- 'wn::WordNetwork': WordNetwork.
+- 'tokens::Base.AbstractVecOrTuple': Tokens to find the subembedding of.
+- 'which_mat::Symbol': Which matrix to extract the subembedding of (:L̂, :R̂).
+- 'aligned::Bool': Whether the returned subembedding should be aligned or not.
+"""
 function soft_subembedding_from_tokens(wn::WordNetwork; tokens::Base.AbstractVecOrTuple=ALIGNMENT, which_mat::Symbol=:L̂, aligned::Bool=false)
 
     token_intersect = tokens[[in(t, keys(wn.token_idx)) for t in tokens]]
-    subembedding_from_tokens(wn, token_intersect; aligned=true)
+    subembedding_from_tokens(wn, token_intersect; which_mat=which_mat, aligned=aligned)
 end
 
 
 """
     Sets the aligning_matrix of wn to one which will transformation the matrix returned by "subembedding_from_tokens" to A.
     (or as close as possible)
-"""
 
+# Arguments
+- 'wn::WordNetwork': WordNetwork.
+- 'A::AbstractArray': The array to align the 'wn' embedding to.
+- 'tokens::Base.AbstractVecOrTuple': The tokens to use for the alignment.
+"""
 function aligning_matrix!(wn::WordNetwork; A::AbstractArray=REFMATRIX, tokens::Base.AbstractVecOrTuple=ALIGNMENT)
     subemb = soft_subembedding_from_tokens(wn, tokens=tokens)
     kept_tokens = [in(t, keys(wn.token_idx)) for t in tokens]

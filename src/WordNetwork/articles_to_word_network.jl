@@ -12,30 +12,25 @@
 
 
 """
-This function takes in the output of the postgreSQL query in the form of a dataframe and returs a vector of WordNetworks. 
-    
-These Word networks contain an alignment (Aᵢ) matrix to align the embeddings (Eᵢ), EᵢAᵢ.
-"""
-function articles_to_word_network(articles::AbstractDataFrame, alignment_tokens::Base.AbstractVecOrTuple, emb::Int, refmatrix::AbstractArray{Float64}, filtered_word_counts::Dict{T, Int})where{T<:AbstractString}
-    all_text = join(articles[!, "body"], " ")
+Takes in a data frame from 'raw' table, and returns  a 'WordNetwork' from the combined (and processed) text of the data frame. 
+This 'WordNetwork' contain an alignment (Aᵢ) matrix to align the embeddings (Eᵢ), EᵢAᵢ.
 
+# Arguments
+- 'articles::AbstractDataFrame': A data frame from the 'raw' table.
+- 'alignment_tokens::Base.AbstractVecOrTuple': A vector of tokens that will be used to align the graph embedding matrix.
+- 'emb_dim::Int': The dimension required for the embedding.
+- 'refmatrix::AbstractArray{Float64}': The reference matrix which the embedding will be aligned to.
+- 'filtered_word_counts::Dict{T, Int} where {T<:AbstractString}': A dictionary from token=>token_idx wich contains tokens that will be used in the network (tokens that have been used frequently enough).
+"""
+function articles_to_word_network(articles::AbstractDataFrame, alignment_tokens::Base.AbstractVecOrTuple, emb_dim::Int, refmatrix::AbstractArray{Float64}, filtered_word_counts::Dict{T, Int})where{T<:AbstractString}
+    all_text = join(articles[!, "body"], " ")
     ftext = format_text(all_text)
+
+    wn = WordNetwork(ftext, emb_dim, filtered_word_counts)
+    aligning_matrix!(wn; tokens=alignment_tokens, A=refmatrix)  
     
-    #println("Processing articles from ", articles[1,"date"]," has been completed")
-    wn_s = WordNetwork(ftext, emb, filtered_word_counts)
-    # refmatrix = get_ref_matrix(wn_s, alignment_tokens)
-    aligning_matrix!(wn_s; tokens=alignment_tokens, A=refmatrix)  
-    
-    # dist_dicts = word_embedding_dists.([wn_s[1]], wn_s)
-    return wn_s
+    return wn
 end
 
-# function articles_to_emb_dist(articles::Base.AbstractVecOrTuple{Dict}, alignment_tokens::Base.AbstractVecOrTuple)
-#     wn_s = WordNetwork.(articles, [2])
-#     refmatrix = get_ref_matrix(wn_s[1], alignment_tokens)
-#     aligning_matrix!.(wn_s; tokens=alignment_tokens, A=refmatrix)  
-    
-#     # dist_dicts = word_embedding_dists.([wn_s[1]], wn_s)
-#     return wn_s
-# end
+
 
