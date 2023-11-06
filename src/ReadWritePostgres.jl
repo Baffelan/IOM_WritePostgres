@@ -139,8 +139,8 @@ function user_from_id(userID)
     user_df = query_postgres("api.readers", "forward", condition=string("WHERE userID='",userID,"'"), sorted=false)
     
     user = Dict{Symbol, Any}(pairs(user_df[1,:]))
-    println(user[:keywords])
     user[:keywords] = JSON.parse(user[:keywords])
+    user[:information] = JSON.parse(user[:information])
 
     return user
 end 
