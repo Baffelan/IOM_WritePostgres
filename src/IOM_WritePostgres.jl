@@ -18,7 +18,6 @@ module IOM_WritePostgres
 
 
     include("process_todays_articles.jl")
-    include("ReadWritePostgres.jl")
     include("process_articles.jl")
 
     include("WordNetwork/WordNetwork.jl")
@@ -53,9 +52,6 @@ module IOM_WritePostgres
     export onboard_user
 
     # Additional useful functions that are imported by MakeWebJSON
-    export user_from_id
-    export query_postgres
-    export get_back_connection
-    export get_forward_connection
+
 
 end
